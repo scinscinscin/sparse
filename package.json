@@ -1,6 +1,6 @@
 {
   "name": "@scinorandex/sparse",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Yet another parser generator",
   "main": "dist/index.js",
   "scripts": {
@@ -26,11 +26,11 @@
   "license": "MIT",
   "devDependencies": {
     "@types/minimist": "^1.2.5",
-    "@types/node": "^22.15.19"
+    "@types/node": "^26.0.0"
   },
   "resolutions": {},
   "dependencies": {
-    "@scinorandex/slex": "^0.0.2",
+    "@scinorandex/slex": "^0.0.3",
     "minimist": "^1.2.8"
   }
 }

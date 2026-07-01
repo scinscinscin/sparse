@@ -1,4 +1,4 @@
-import type { GrammarToken } from "src/grammarParser";
+import { GrammarToken } from "../grammarParser";
 
 export const buildErrorWindow = (file: string, token: GrammarToken) => {
   const lines = file.split("\n");
