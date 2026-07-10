@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 import fs from "fs/promises";
-import { GrammarToken, tryBuildProductions } from "./grammarParser";
+import { tryBuildProductions } from "./index";
 import { generateStates } from "./generator";
 import minimist from "minimist";
 import path from "path";

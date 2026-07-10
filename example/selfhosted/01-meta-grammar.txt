@@ -1,0 +1,10 @@
+<S>: <PROGRAM>;
+<PROGRAM>: (<PRODUCTIONS: productions>)? [EOF];
+<PRODUCTIONS>: <PRODUCTION: production> (<PRODUCTIONS: rest>)?;
+<PRODUCTION>: [L_ANGLE] [IDENTIFIER: production_name] [R_ANGLE] [COLON] <TOKENS: tokens> [SEMICOLON];
+<TOKENS>: <TOKEN: token> (<TOKENS: rest>)?;
+<TOKEN>: <VARIABLE | TERMINAL: token>;
+<TOKEN>: [L_PAREN] <TOKENS: tokens> [R_PAREN] [QUESTION_MARK: question_mark];
+<VARIABLE>: [L_ANGLE] <INSIDE: inside> ([COLON] [IDENTIFIER: token_name])? [R_ANGLE];
+<TERMINAL>: [L_BRACKET] <INSIDE: inside> ([COLON] [IDENTIFIER: token_name])? [R_BRACKET];
+<INSIDE>: [IDENTIFIER: identifier] ([PIPE] <INSIDE: rest>)?;

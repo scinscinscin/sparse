@@ -1,5 +1,5 @@
 export { GeneratorResult, generateStates } from "./generator";
-export { Production, buildProductions, tryBuildProductions } from "./grammarParser";
+export { buildProductions, tryBuildProductions } from "./meta/selfhosted";
 export { Result } from "./utils/Result";
 export {
   ParserRecoveryFunction,
@@ -9,4 +9,5 @@ export {
   ParserResult,
   ParserError,
 } from "./parser";
-export { buildStates } from "./tableParser";
+export { buildStates } from "./table/selfhosted";
+export { Production } from "./meta/common";

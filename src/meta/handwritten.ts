@@ -1,18 +1,6 @@
-import { Slex, Token } from "@scinorandex/slex";
-import { Result } from "./utils/Result";
-
-export type Production = { lhs: GrammarToken; rhs: { type: "terminal" | "variable"; token: GrammarToken }[] };
-
-export type GrammarTokenMetadata = {};
-export enum GrammarTokenType {
-  PRODUCTION_NAME,
-  TOKEN_NAME,
-  COLON,
-  SEMICOLON,
-  EOF,
-}
-
-export type GrammarToken = Token<GrammarTokenType, GrammarTokenMetadata>;
+import { Slex } from "@scinorandex/slex";
+import { Result } from "../utils/Result";
+import { GrammarToken, GrammarTokenMetadata, GrammarTokenType, Production } from "./common";
 
 export const grammarLexerGenerator = new Slex<GrammarTokenType, GrammarTokenMetadata>({
   EOF_TYPE: GrammarTokenType.EOF,
@@ -21,11 +9,11 @@ export const grammarLexerGenerator = new Slex<GrammarTokenType, GrammarTokenMeta
 
 grammarLexerGenerator.addRule(
   "lowercase",
-  "a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z"
+  "a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z",
 );
 grammarLexerGenerator.addRule(
   "uppercase",
-  "A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z"
+  "A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z",
 );
 grammarLexerGenerator.addRule("letter", "${lowercase} | ${uppercase}");
 grammarLexerGenerator.addRule("digit", "0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9");
@@ -53,19 +41,26 @@ export const tryBuildProductions = (lexer: LexerInterface | string): Result<Prod
     lexer.getNextToken();
   };
 
+  let productionIndex = 0;
+
   const buildProduction = (): Result<Production> => {
     const productionLHS = lexer.getNextToken();
     expect(GrammarTokenType.COLON);
 
-    const production: Production = { lhs: productionLHS, rhs: [] };
+    const production: Production = {
+      lhs: productionLHS,
+      identifier: productionLHS.lexeme,
+      rhs: [],
+      originalProductionIndex: productionIndex++,
+    };
 
     while (lexer.peekNextToken().type != GrammarTokenType.SEMICOLON) {
       const productionRHS = lexer.getNextToken();
 
       if (productionRHS.type == GrammarTokenType.PRODUCTION_NAME)
-        production.rhs.push({ type: "variable", token: productionRHS });
+        production.rhs.push({ type: "variable", token: productionRHS, identifier: productionRHS.lexeme, name: null });
       else if (productionRHS.type == GrammarTokenType.TOKEN_NAME)
-        production.rhs.push({ type: "terminal", token: productionRHS });
+        production.rhs.push({ type: "terminal", token: productionRHS, identifier: productionRHS.lexeme, name: null });
       else
         return {
           success: false,
@@ -91,7 +86,7 @@ export const buildProductions = (lexer: LexerInterface | string): Production[] =
   const result = tryBuildProductions(lexer);
   if (result.success === false)
     throw new Error(
-      `Encountered error "${result.reason}" while parsing grammar at ${result.token.line}:${result.token.column}`
+      `Encountered error "${result.reason}" while parsing grammar at ${result.token.line}:${result.token.column}`,
     );
   return result.value;
 };

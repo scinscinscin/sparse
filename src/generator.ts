@@ -1,5 +1,5 @@
-import { GrammarToken, Production } from "./grammarParser";
 import { TableState } from "./parser";
+import { GrammarToken, Production } from "./meta/common";
 import { Result } from "./utils/Result";
 
 const xContainsAllOfY = <T>(xs: Set<T>, ys: Set<T>) => [...ys].every((x) => xs.has(x));
@@ -9,7 +9,7 @@ const EOF_STRING = "[EOF]";
 function computeFirstSets(allProductions: Production[]): Result<Map<string, Set<string>>> {
   // Initialize the hashmap
   const ret = new Map<string, Set<string>>();
-  for (const production of allProductions) ret.set(production.lhs.lexeme, new Set());
+  for (const production of allProductions) ret.set(production.identifier, new Set());
 
   // Keep iterating through all productions until no edits are made
   let wasEdited = true;
@@ -17,16 +17,16 @@ function computeFirstSets(allProductions: Production[]): Result<Map<string, Set<
     wasEdited = false;
 
     for (const production of allProductions) {
-      const toBeModified = ret.get(production.lhs.lexeme)!;
+      const toBeModified = ret.get(production.identifier)!;
 
       const firstRhsToken = production.rhs[0];
       if (firstRhsToken.type === "variable") {
-        const add = ret.get(firstRhsToken.token.lexeme);
+        const add = ret.get(firstRhsToken.identifier);
 
         if (add == null) {
           return {
             success: false,
-            reason: `Variable "${firstRhsToken.token.lexeme}" doesn't have a corresponding left hand side`,
+            reason: `Variable "${firstRhsToken.identifier}" doesn't have a corresponding left hand side`,
             token: firstRhsToken.token,
           };
         }
@@ -35,13 +35,13 @@ function computeFirstSets(allProductions: Production[]): Result<Map<string, Set<
         // if not then add them and set wasEdited to true so we iterate one more time
         if (!xContainsAllOfY(toBeModified, add)) {
           wasEdited = true;
-          ret.set(production.lhs.lexeme, new Set([...toBeModified, ...add]));
+          ret.set(production.identifier, new Set([...toBeModified, ...add]));
         }
       } else if (firstRhsToken.type === "terminal") {
         // add terminal to toBeModified and set wasEdited to true
-        if (toBeModified.has(firstRhsToken.token.lexeme) == false) {
+        if (toBeModified.has(firstRhsToken.identifier) == false) {
           wasEdited = true;
-          ret.set(production.lhs.lexeme, new Set([...toBeModified, firstRhsToken.token.lexeme]));
+          ret.set(production.identifier, new Set([...toBeModified, firstRhsToken.identifier]));
         }
       }
     }
@@ -51,7 +51,7 @@ function computeFirstSets(allProductions: Production[]): Result<Map<string, Set<
 }
 
 function computeFollowSets(
-  allProductions: Production[]
+  allProductions: Production[],
 ): Result<{ firstSets: Map<string, Set<string>>; followSets: Map<string, Set<string>> }> {
   const firstSetsResult = computeFirstSets(allProductions);
   if (firstSetsResult.success === false) return firstSetsResult;
@@ -60,8 +60,8 @@ function computeFollowSets(
 
   // create a list of follow sets and add EOF to the initial production
   const ret = new Map<string, Set<string>>();
-  for (const production of allProductions) ret.set(production.lhs.lexeme, new Set());
-  ret.get(allProductions[0].lhs.lexeme)!.add(EOF_STRING);
+  for (const production of allProductions) ret.set(production.identifier, new Set());
+  ret.get(allProductions[0].identifier)!.add(EOF_STRING);
 
   let wasEdited = true;
   while (wasEdited) {
@@ -75,11 +75,11 @@ function computeFollowSets(
         for (let i = 0; i < rhs.length; i++) {
           const currentRhsToken = rhs[i];
 
-          if (currentRhsToken.type === "variable" && currentRhsToken.token.lexeme === variable) {
+          if (currentRhsToken.type === "variable" && currentRhsToken.identifier === variable) {
             if (i === rhs.length - 1) {
               // we are at the end of rhs, so whatever is in currentProduction
               // we need to also need to add to variable
-              const toBeAdded = ret.get(currentProduction.lhs.lexeme)!;
+              const toBeAdded = ret.get(currentProduction.identifier)!;
               const receiver = ret.get(variable)!;
               if (!xContainsAllOfY(receiver, toBeAdded)) {
                 wasEdited = true;
@@ -91,18 +91,18 @@ function computeFollowSets(
               if (nextRhsToken.type === "terminal") {
                 // next token is a terminal, check if its in existng follow set and add if it doesn't exist
                 const existing = ret.get(variable)!;
-                if (!existing.has(nextRhsToken.token.lexeme)) {
+                if (!existing.has(nextRhsToken.identifier)) {
                   wasEdited = true;
-                  ret.set(variable, new Set([...existing, nextRhsToken.token.lexeme]));
+                  ret.set(variable, new Set([...existing, nextRhsToken.identifier]));
                 }
               } else if (nextRhsToken.type === "variable") {
                 // next token is a variable, get the first set of the variable
                 // check if it's not in the followset and add if not
-                const firstSet = firstSets.get(nextRhsToken.token.lexeme);
+                const firstSet = firstSets.get(nextRhsToken.identifier);
                 if (firstSet == null)
                   return {
                     success: false,
-                    reason: `Variable "${nextRhsToken.token.lexeme}" doesn't have a corresponding left hand side`,
+                    reason: `Variable "${nextRhsToken.identifier}" doesn't have a corresponding left hand side`,
                     token: nextRhsToken.token,
                   };
 
@@ -134,27 +134,28 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
   // The implementation of this function ensures that the table is an LR(1) parsing table
   const determineNextLookAhead = (
     lhs: GrammarToken,
-    array: { type: "terminal" | "variable"; token: GrammarToken }[]
+    identifier: string,
+    array: { type: "terminal" | "variable"; token: GrammarToken; identifier: string }[],
   ): Result<string[]> => {
     if (array.length === 0) {
-      const followSet = followSets.get(lhs.lexeme);
+      const followSet = followSets.get(identifier);
       if (followSet != undefined) return { success: true, value: [...followSet] };
 
       return {
         success: false,
-        reason: `Variable ${lhs.lexeme} not present in computed follow sets`,
+        reason: `Variable ${identifier} not present in computed follow sets`,
         token: lhs,
       };
     } else {
       const next = array[0];
 
-      if (next.type === "terminal") return { success: true, value: [next.token.lexeme] };
-      const testing = firstSets.get(next.token.lexeme);
+      if (next.type === "terminal") return { success: true, value: [next.identifier] };
+      const testing = firstSets.get(next.identifier);
       if (testing !== undefined) return { success: true, value: [...testing] };
 
       return {
         success: false,
-        reason: `Variable ${next.token.lexeme} not present in computed first sets`,
+        reason: `Variable ${next.identifier} not present in computed first sets`,
         token: next.token,
       };
     }
@@ -163,7 +164,14 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
   // This fnuction creates the initial item set based on the
   // production provided. It creating the initial item and expands it
   function generateInitialItemSet(production: Production) {
-    const initialItem = { lhs: production.lhs, rhs: production.rhs, dot: 0, lookahead: [EOF_STRING] } as Item;
+    const initialItem = {
+      lhs: production.lhs,
+      identifier: production.identifier,
+      rhs: production.rhs,
+      dot: 0,
+      lookahead: [EOF_STRING],
+    } as Item;
+
     return expandItemSet([initialItem]);
   }
 
@@ -182,19 +190,25 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
 
       if (after.type === "variable") {
         // Find prodctions whose left hand side is the symbol after the dot
-        const newProductions = productions.filter((p) => p.lhs.lexeme === after.token.lexeme);
+        const newProductions = productions.filter((p) => p.identifier === after.identifier);
 
         // Compute the lookahead for the new productions to be added to the item set
         const rest = currentItem.rhs.slice(currentItem.dot + 1);
 
-        const lookaheadResult = determineNextLookAhead(currentItem.lhs, rest);
+        const lookaheadResult = determineNextLookAhead(currentItem.lhs, currentItem.identifier, rest);
         if (lookaheadResult.success === false) return lookaheadResult;
         const lookahead = lookaheadResult.value;
 
         for (const newProduction of newProductions) {
           // Create the new item and check if it already exists in the item set
           // If it doesn't exist, add it to the item set and the queue of unprocessed items
-          const newItem = { lhs: newProduction.lhs, rhs: newProduction.rhs, dot: 0, lookahead } as Item;
+          const newItem = {
+            lhs: newProduction.lhs,
+            identifier: newProduction.identifier,
+            rhs: newProduction.rhs,
+            dot: 0,
+            lookahead,
+          } as Item;
           const encoding = JSON.stringify(newItem);
 
           if (itemSet.some((i) => JSON.stringify(i) === encoding) == false) {
@@ -247,7 +261,7 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
           const productionToReduceTo = productions
             .map((p, i) => [p, i] as const)
             .find(
-              ([p, _]) => JSON.stringify(p.rhs) === JSON.stringify(item.rhs) && p.lhs.lexeme === item.lhs.lexeme
+              ([p, _]) => JSON.stringify(p.rhs) === JSON.stringify(item.rhs) && p.identifier === item.identifier,
             )![1];
 
           // for each lookahead in the item, create a new entry in the action table to reduce to the production found
@@ -266,14 +280,13 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
         if (nextSymbol.type === "variable") {
           // Next symbol is a variable so we need to add it to the GOTO table
           // Check if the GOTO table already has an entry for the next symbola and either push or create the array
-          if (nextStates_Goto.has(nextSymbol.token.lexeme)) nextStates_Goto.get(nextSymbol.token.lexeme)!.push(newItem);
-          else nextStates_Goto.set(nextSymbol.token.lexeme, [newItem]);
+          if (nextStates_Goto.has(nextSymbol.identifier)) nextStates_Goto.get(nextSymbol.identifier)!.push(newItem);
+          else nextStates_Goto.set(nextSymbol.identifier, [newItem]);
         } else if (nextSymbol.type === "terminal") {
           // Next symbol is a terminal so we need to add it to the SHIFT table
           // Check if the SHIFT table already has an entry for the next symbola and either push or create the array
-          if (nextStates_Shift.has(nextSymbol.token.lexeme))
-            nextStates_Shift.get(nextSymbol.token.lexeme)!.push(newItem);
-          else nextStates_Shift.set(nextSymbol.token.lexeme, [newItem]);
+          if (nextStates_Shift.has(nextSymbol.identifier)) nextStates_Shift.get(nextSymbol.identifier)!.push(newItem);
+          else nextStates_Shift.set(nextSymbol.identifier, [newItem]);
         }
       }
 
@@ -367,7 +380,7 @@ export class GeneratorResult {
   constructor(
     public readonly states: State[],
     public readonly ActionTable: Map<string, { action: "shift" | "reduce"; value: number }>[],
-    public readonly GotoTable: Map<string, number>[]
+    public readonly GotoTable: Map<string, number>[],
   ) {}
 
   toTable(): string {
@@ -382,6 +395,7 @@ export class GeneratorResult {
   toStates(): TableState[] {
     return this.ActionTable.map((actions, idx) => {
       const tableState = new TableState();
+
       for (const [k, { action, value }] of actions.entries())
         tableState.actions.set(k, { type: action === "reduce" ? "reduce" : "shift", value });
 
@@ -390,5 +404,9 @@ export class GeneratorResult {
 
       return tableState;
     });
+  }
+
+  toJSObject() {
+    return this.toStates().map((tableState) => tableState.toJSObject());
   }
 }

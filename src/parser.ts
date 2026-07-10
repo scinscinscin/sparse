@@ -1,16 +1,16 @@
 import { Slex, Token } from "@scinorandex/slex";
 import { generateStates } from "./generator";
-import { Production } from "./grammarParser";
 import { Stack } from "./utils/Stack";
 import { Result } from "./utils/Result";
+import { Production } from "./meta/common";
 
 export type TableAction = { type: "shift" | "reduce" | "goto"; value: number };
 
 export class TableState {
   public readonly actions: Map<string, TableAction>;
 
-  constructor() {
-    this.actions = new Map();
+  constructor(actions = new Map<string, TableAction>()) {
+    this.actions = actions;
   }
 
   public getTerminalAction(terminal: string): TableAction | undefined {
@@ -19,6 +19,14 @@ export class TableState {
 
   public getVariableAction(variable: string): TableAction | undefined {
     return this.actions.get(variable);
+  }
+
+  toJSObject() {
+    return Object.fromEntries(this.actions);
+  }
+
+  static fromJSObject(json: ReturnType<TableState["toJSObject"]>) {
+    return new TableState(new Map(Object.entries(json)));
   }
 }
 
@@ -32,7 +40,7 @@ export class Sparse<TokenType, Metadata, Node> {
       productions: Production[];
       states: TableState[];
       toStringifiedTokenType: (tokenType: TokenType) => string;
-    }
+    },
   ) {}
 
   public static tryFromProductions<TokenType, Metadata, Node>(options: {
@@ -65,9 +73,9 @@ export class Sparse<TokenType, Metadata, Node> {
   public generate(
     lexer: ReturnType<Slex<TokenType, Metadata>["generate"]>,
     options: {
-      reducer: (input: LR1StackSymbol<TokenType, Metadata, Node>[], productionIndex: number) => Node;
+      reducer: (input: LR1StackSymbol<TokenType, Metadata, Node>[], productionIndex: number, bag: any) => Node;
       recover?: ParserRecoveryFunction<TokenType, Metadata, Node>;
-    }
+    },
   ) {
     return new LR1Parser<TokenType, Metadata, Node>(this.options, options.reducer, options.recover ?? null, lexer);
   }
@@ -104,9 +112,13 @@ class LR1Parser<TokenType, Metadata, Node> {
       states: TableState[];
       toStringifiedTokenType: (tokenType: TokenType) => string;
     },
-    public readonly reducer: (input: LR1StackSymbol<TokenType, Metadata, Node>[], productionIndex: number) => Node,
+    public readonly reducer: (
+      input: LR1StackSymbol<TokenType, Metadata, Node>[],
+      productionIndex: number,
+      bag: any,
+    ) => Node,
     public readonly recover: ParserRecoveryFunction<TokenType, Metadata, Node> | null,
-    public readonly lexer: ReturnType<Slex<TokenType, Metadata>["generate"]>
+    public readonly lexer: ReturnType<Slex<TokenType, Metadata>["generate"]>,
   ) {}
 
   public parse(): ParserResult<TokenType, Metadata, Node> {
@@ -121,9 +133,9 @@ class LR1Parser<TokenType, Metadata, Node> {
         if (this.recover === null)
           throw new LR1ParserGraveError(
             `Invalid syntax. Expected ${[...states[currentState].actions.keys()].join(
-              ","
+              ",",
             )} but got ${toStringifiedTokenType(token.type)}`,
-            token
+            token,
           );
 
         const recoveryResult = this.recover({
@@ -166,29 +178,43 @@ class LR1Parser<TokenType, Metadata, Node> {
         }
 
         // try to perform the reduction
+        const productionIndex = production.originalProductionIndex;
+
         try {
-          this.symbolsStack.push({ type: "node", node: this.reducer(popped, fixedAction.value) });
+          // prepare the object that you're going to send to the reducer function
+          const bag = {} as { [key: string]: Node | Token<TokenType, Metadata> };
+
+          for (let i = 0; i < production.rhs.length; i++) {
+            const rhsItem = production.rhs[i];
+            const poppedItem = popped[i];
+            if (rhsItem.name != null)
+              bag[rhsItem.name] = poppedItem.type === "token" ? poppedItem.token : poppedItem.node;
+          }
+
+          const node = this.reducer(popped, productionIndex, bag);
+          this.symbolsStack.push({ type: "node", node });
         } catch (err) {
           const input = JSON.stringify(popped, null, 2);
+          console.log(err);
           throw new LR1ParserGraveError(
-            `Error while performing reduction for production: ${fixedAction.value}. Reduction input: ${input}`,
-            token
+            `Error while performing reduction for production: ${productionIndex}. Reduction input: ${input}`,
+            token,
           );
         }
 
         // get the top node and figure out what state to add to state stack
         const topNode = this.statesStack.peek();
-        const gotoAction = states[topNode].getVariableAction(production.lhs.lexeme);
+        const gotoAction = states[topNode].getVariableAction(production.identifier);
 
         if (gotoAction == undefined)
           throw new LR1ParserGraveError(
-            `No GOTO action for for state: ${topNode} and production: ${production.lhs}. Actions: Reduce by production ${fixedAction.value}`,
-            token
+            `No GOTO action for for state: ${topNode} and production: ${production.identifier}. Actions: Reduce by production ${productionIndex}`,
+            token,
           );
         else if (gotoAction.type !== "goto")
           throw new LR1ParserGraveError(
-            `Expected GOTO action for state: ${topNode} and production: ${production.lhs}. Actions: Reduce by production ${fixedAction.value}. Received: ${gotoAction.type}`,
-            token
+            `Expected GOTO action for state: ${topNode} and production: ${production.identifier}. Actions: Reduce by production ${productionIndex}. Received: ${gotoAction.type}`,
+            token,
           );
 
         this.statesStack.push(gotoAction.value);
@@ -201,7 +227,11 @@ class LR1Parser<TokenType, Metadata, Node> {
 }
 
 export class LR1ParserGraveError<TokenType, Metadata> extends Error {
-  constructor(public readonly reason: string, public readonly currentToken: Token<TokenType, Metadata>, err?: Error) {
+  constructor(
+    public readonly reason: string,
+    public readonly currentToken: Token<TokenType, Metadata>,
+    err?: Error,
+  ) {
     super(reason);
   }
 }

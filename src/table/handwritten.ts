@@ -1,5 +1,5 @@
 import { Slex } from "@scinorandex/slex";
-import { TableAction, TableState } from "./parser";
+import { TableAction, TableState } from "../parser";
 
 type TableTokenMetadata = {};
 export enum TableTokenType {
@@ -20,11 +20,11 @@ export const tableLexerGenerator = new Slex<TableTokenType, TableTokenMetadata>(
 
 tableLexerGenerator.addRule(
   "lowercase",
-  "a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z"
+  "a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z",
 );
 tableLexerGenerator.addRule(
   "uppercase",
-  "A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z"
+  "A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z",
 );
 tableLexerGenerator.addRule("letter", "${lowercase} | ${uppercase}");
 tableLexerGenerator.addRule("digit", "0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9");
@@ -58,8 +58,8 @@ export const buildStates = (grammar: string) =>
         token.type === TableTokenType.PRODUCTION_NAME
           ? { type: "goto", value: parseInt(value.lexeme) }
           : value.type === TableTokenType.REDUCE_ACTION
-          ? { type: "reduce", value: parseInt(value.lexeme.substring(1)) }
-          : { type: "shift", value: parseInt(value.lexeme.substring(1)) };
+            ? { type: "reduce", value: parseInt(value.lexeme.substring(1)) }
+            : { type: "shift", value: parseInt(value.lexeme.substring(1)) };
 
       state.actions.set(token.lexeme, setting);
       if (lexer.peekNextToken().type == TableTokenType.COMMA) lexer.getNextToken();

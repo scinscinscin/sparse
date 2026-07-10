@@ -38,12 +38,15 @@ enum LoLangTokenType {
   // INCREMENTATION OPERATOR
   DOUBLE_PLUS, DOUBLE_MINUS,
 
-  STRING_LITERAL, NUMBER_LITERAL, BOOLEAN_LITERAL, NULL_LITERAL
+  STRING_LITERAL, NUMBER_LITERAL, BOOLEAN_LITERAL, NULL_LITERAL,
+  SINGLE_LINE_COMMENT, MULTI_LINE_COMMENT
 }
 
 const lexerGenerator = new Slex<LoLangTokenType, {}>({
   EOF_TYPE: LoLangTokenType.EOF,
   isHigherPrecedence: ({ current, next }) => current === LoLangTokenType.IDENTIFIER,
+  // Specifies that SINGLE_LINE_COMMENT and MULTI_LINE_COMMENT tokens should be ignored.
+  ignoreTokens: [LoLangTokenType.SINGLE_LINE_COMMENT, LoLangTokenType.MULTI_LINE_COMMENT],
 });
 {
   lexerGenerator.addRule("plus", "$+", LoLangTokenType.PLUS);
@@ -91,7 +94,7 @@ const lexerGenerator = new Slex<LoLangTokenType, {}>({
   lexerGenerator.addRule("letter", "${lowercase}|${uppercase}");
   lexerGenerator.addRule(
     "symbols",
-    "$ | $! | $@ | $# | $$ | $% | $^ | $& | $* | $( | $) | ${ | $[ | $} | $] | $; | $: | $< | $, | $. | $> | $? | $/ | $` | $~ | $- | $_ | $+ | $= | $|"
+    "$ | $! | $@ | $# | $$ | $% | $^ | $& | $* | $( | $) | ${ | $[ | $} | $] | $; | $: | $< | $, | $. | $> | $? | $/ | $` | $~ | $- | $_ | $+ | $= | $|",
   );
   lexerGenerator.addRule("escape_character", "$\\ | $\n | $\t | $\r | $\\$\" | $\\$'");
   lexerGenerator.addRule("digit", "0|1|2|3|4|5|6|7|8|9");
@@ -108,12 +111,12 @@ const lexerGenerator = new Slex<LoLangTokenType, {}>({
     "string_literal",
     "$\"(${character} | $')*$\" | $'(${character} | $\")*$'",
     LoLangTokenType.STRING_LITERAL,
-    (str) => str.substring(1, str.length - 1).replaceAll("\\n", "\n")
+    (str) => str.substring(1, str.length - 1).replaceAll("\\n", "\n"),
   );
   lexerGenerator.addRule(
     "number_literal",
     "${float_number}|${decimal_number}|${octal_number}|${binary_number}|${hexadecimal_number}",
-    LoLangTokenType.NUMBER_LITERAL
+    LoLangTokenType.NUMBER_LITERAL,
   );
   lexerGenerator.addRule("boolean_literal", "faker|shaker", LoLangTokenType.BOOLEAN_LITERAL);
   lexerGenerator.addRule("null_literal", "cooldown", LoLangTokenType.NULL_LITERAL);
@@ -148,6 +151,10 @@ const lexerGenerator = new Slex<LoLangTokenType, {}>({
   lexerGenerator.addRule("string_type", "message", LoLangTokenType.STRING_TYPE);
   lexerGenerator.addRule("void_type", "passive", LoLangTokenType.VOID_TYPE);
   lexerGenerator.addRule("identifier", "(${letter}|$_)(${letter}|${digit}|$_)*", LoLangTokenType.IDENTIFIER);
+
+  // handle single and multi line comments
+  lexerGenerator.addRule("single_line_comment", "$/$/(($\n)!)*", LoLangTokenType.SINGLE_LINE_COMMENT);
+  lexerGenerator.addRule("multi_line_comment", "$/$*(($*)!|($*($/)!))*$*$/", LoLangTokenType.MULTI_LINE_COMMENT);
 }
 
 type StringifiedNode = (StringifiedNode | string)[];
@@ -187,7 +194,7 @@ async function main() {
           LoLangTokenType.SEMICOLON,
           ";",
           new ColumnAndRow(token.column, token.line),
-          token.metadata
+          token.metadata,
         );
 
         if (action) {
@@ -196,7 +203,7 @@ async function main() {
           statesStack.push(action.value);
           symbolsStack.push({ type: "token", token: newToken });
           addError(
-            `Expected SEMICOLON but received ${LoLangTokenType[token.type]}. SEMICOLON was automatically inserted.`
+            `Expected SEMICOLON but received ${LoLangTokenType[token.type]}. SEMICOLON was automatically inserted.`,
           );
         }
 
