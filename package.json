@@ -1,10 +1,10 @@
 {
   "name": "@scinorandex/sparse",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Yet another parser generator",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "watch": "tsc -w"
   },
   "bin": {

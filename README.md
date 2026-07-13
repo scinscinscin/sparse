@@ -128,5 +128,5 @@ async function main() {
 
 ## Roadmap
 
-1. Support grouping and other modifiers in the CFG. Currently, you have to unroll your grammar and remove kleene-star, kleene-plus, optional, and other modifiers.
+1. Support grouping and other modifiers in the CFG. Currently, you have to unroll your grammar and remove kleene-star, kleene-plus, and other modifiers.
 2. Potentially add LALR(1) support. Currently, the parser only supports outputting LR(1) tables. Tables can be significantly smaller if it made LALR(1) tables instead.
