@@ -99,7 +99,7 @@ Finally, you can define the parser's reduction function and optionally define th
 
 ```ts
 const parser = parserGenerator.generate(lexer, {
-  reducer: (input, productionIndex) => new Node(input),
+  reducer: (_, { input, index }) => new Node(input),
 });
 
 console.log(parser.parse().result!.toObject());

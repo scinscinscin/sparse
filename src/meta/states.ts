@@ -79,176 +79,198 @@ export const states = [
     "[R_ANGLE]": {
       "type": "shift",
       "value": 9
-    }
-  },
-  {
+    },
     "[COLON]": {
       "type": "shift",
       "value": 10
     }
   },
   {
-    "[L_PAREN]": {
+    "[COLON]": {
       "type": "shift",
-      "value": 15
-    },
-    "[L_ANGLE]": {
-      "type": "shift",
-      "value": 16
-    },
-    "[L_BRACKET]": {
-      "type": "shift",
-      "value": 17
-    },
-    "<TOKENS>": {
-      "type": "goto",
       "value": 11
-    },
-    "<TOKEN>": {
-      "type": "goto",
-      "value": 12
-    },
-    "<VARIABLE>": {
-      "type": "goto",
-      "value": 13
-    },
-    "<TERMINAL>": {
-      "type": "goto",
-      "value": 14
     }
   },
   {
-    "[SEMICOLON]": {
+    "[IDENTIFIER]": {
+      "type": "shift",
+      "value": 12
+    }
+  },
+  {
+    "[L_PAREN]": {
+      "type": "shift",
+      "value": 17
+    },
+    "[L_ANGLE]": {
       "type": "shift",
       "value": 18
-    }
-  },
-  {
-    "[SEMICOLON]": {
-      "type": "reduce",
-      "value": 6
-    },
-    "[L_PAREN]": {
-      "type": "shift",
-      "value": 15
-    },
-    "[L_ANGLE]": {
-      "type": "shift",
-      "value": 16
     },
     "[L_BRACKET]": {
       "type": "shift",
-      "value": 17
-    },
-    "<TOKENS>": {
-      "type": "goto",
       "value": 19
     },
-    "<TOKEN>": {
-      "type": "goto",
-      "value": 20
-    },
-    "<VARIABLE>": {
+    "<TOKENS>": {
       "type": "goto",
       "value": 13
     },
-    "<TERMINAL>": {
+    "<TOKEN>": {
       "type": "goto",
       "value": 14
-    }
-  },
-  {
-    "[SEMICOLON]": {
-      "type": "reduce",
-      "value": 8
     },
-    "[R_PAREN]": {
-      "type": "reduce",
-      "value": 8
-    },
-    "[L_PAREN]": {
-      "type": "reduce",
-      "value": 8
-    },
-    "[L_ANGLE]": {
-      "type": "reduce",
-      "value": 8
-    },
-    "[L_BRACKET]": {
-      "type": "reduce",
-      "value": 8
-    }
-  },
-  {
-    "[SEMICOLON]": {
-      "type": "reduce",
-      "value": 9
-    },
-    "[R_PAREN]": {
-      "type": "reduce",
-      "value": 9
-    },
-    "[L_PAREN]": {
-      "type": "reduce",
-      "value": 9
-    },
-    "[L_ANGLE]": {
-      "type": "reduce",
-      "value": 9
-    },
-    "[L_BRACKET]": {
-      "type": "reduce",
-      "value": 9
-    }
-  },
-  {
-    "[L_PAREN]": {
-      "type": "shift",
+    "<VARIABLE>": {
+      "type": "goto",
       "value": 15
     },
-    "[L_ANGLE]": {
-      "type": "shift",
+    "<TERMINAL>": {
+      "type": "goto",
       "value": 16
+    }
+  },
+  {
+    "[R_ANGLE]": {
+      "type": "shift",
+      "value": 20
+    }
+  },
+  {
+    "[SEMICOLON]": {
+      "type": "shift",
+      "value": 21
+    }
+  },
+  {
+    "[SEMICOLON]": {
+      "type": "reduce",
+      "value": 7
     },
-    "[L_BRACKET]": {
+    "[L_PAREN]": {
       "type": "shift",
       "value": 17
     },
-    "<TOKENS>": {
-      "type": "goto",
-      "value": 21
+    "[L_ANGLE]": {
+      "type": "shift",
+      "value": 18
     },
-    "<TOKEN>": {
+    "[L_BRACKET]": {
+      "type": "shift",
+      "value": 19
+    },
+    "<TOKENS>": {
       "type": "goto",
       "value": 22
     },
+    "<TOKEN>": {
+      "type": "goto",
+      "value": 23
+    },
     "<VARIABLE>": {
       "type": "goto",
-      "value": 13
+      "value": 15
     },
     "<TERMINAL>": {
       "type": "goto",
-      "value": 14
+      "value": 16
     }
   },
   {
-    "[IDENTIFIER]": {
+    "[SEMICOLON]": {
+      "type": "reduce",
+      "value": 9
+    },
+    "[R_PAREN]": {
+      "type": "reduce",
+      "value": 9
+    },
+    "[L_PAREN]": {
+      "type": "reduce",
+      "value": 9
+    },
+    "[L_ANGLE]": {
+      "type": "reduce",
+      "value": 9
+    },
+    "[L_BRACKET]": {
+      "type": "reduce",
+      "value": 9
+    }
+  },
+  {
+    "[SEMICOLON]": {
+      "type": "reduce",
+      "value": 10
+    },
+    "[R_PAREN]": {
+      "type": "reduce",
+      "value": 10
+    },
+    "[L_PAREN]": {
+      "type": "reduce",
+      "value": 10
+    },
+    "[L_ANGLE]": {
+      "type": "reduce",
+      "value": 10
+    },
+    "[L_BRACKET]": {
+      "type": "reduce",
+      "value": 10
+    }
+  },
+  {
+    "[L_PAREN]": {
       "type": "shift",
+      "value": 17
+    },
+    "[L_ANGLE]": {
+      "type": "shift",
+      "value": 18
+    },
+    "[L_BRACKET]": {
+      "type": "shift",
+      "value": 19
+    },
+    "<TOKENS>": {
+      "type": "goto",
       "value": 24
     },
-    "<INSIDE>": {
+    "<TOKEN>": {
       "type": "goto",
-      "value": 23
+      "value": 25
+    },
+    "<VARIABLE>": {
+      "type": "goto",
+      "value": 15
+    },
+    "<TERMINAL>": {
+      "type": "goto",
+      "value": 16
     }
   },
   {
     "[IDENTIFIER]": {
       "type": "shift",
-      "value": 26
+      "value": 27
     },
     "<INSIDE>": {
       "type": "goto",
-      "value": 25
+      "value": 26
+    }
+  },
+  {
+    "[IDENTIFIER]": {
+      "type": "shift",
+      "value": 29
+    },
+    "<INSIDE>": {
+      "type": "goto",
+      "value": 28
+    }
+  },
+  {
+    "[COLON]": {
+      "type": "shift",
+      "value": 30
     }
   },
   {
@@ -264,357 +286,305 @@ export const states = [
   {
     "[SEMICOLON]": {
       "type": "reduce",
-      "value": 7
+      "value": 8
     }
   },
   {
     "[SEMICOLON]": {
       "type": "reduce",
-      "value": 6
+      "value": 7
     },
     "[R_PAREN]": {
       "type": "reduce",
-      "value": 6
+      "value": 7
     },
     "[L_PAREN]": {
       "type": "shift",
-      "value": 15
+      "value": 17
     },
     "[L_ANGLE]": {
       "type": "shift",
-      "value": 16
+      "value": 18
     },
     "[L_BRACKET]": {
       "type": "shift",
-      "value": 17
+      "value": 19
     },
     "<TOKENS>": {
       "type": "goto",
-      "value": 27
-    },
-    "<TOKEN>": {
-      "type": "goto",
-      "value": 20
-    },
-    "<VARIABLE>": {
-      "type": "goto",
-      "value": 13
-    },
-    "<TERMINAL>": {
-      "type": "goto",
-      "value": 14
-    }
-  },
-  {
-    "[R_PAREN]": {
-      "type": "shift",
-      "value": 28
-    }
-  },
-  {
-    "[R_PAREN]": {
-      "type": "reduce",
-      "value": 6
-    },
-    "[L_PAREN]": {
-      "type": "shift",
-      "value": 15
-    },
-    "[L_ANGLE]": {
-      "type": "shift",
-      "value": 16
-    },
-    "[L_BRACKET]": {
-      "type": "shift",
-      "value": 17
-    },
-    "<TOKENS>": {
-      "type": "goto",
-      "value": 29
-    },
-    "<TOKEN>": {
-      "type": "goto",
-      "value": 20
-    },
-    "<VARIABLE>": {
-      "type": "goto",
-      "value": 13
-    },
-    "<TERMINAL>": {
-      "type": "goto",
-      "value": 14
-    }
-  },
-  {
-    "[R_ANGLE]": {
-      "type": "shift",
-      "value": 30
-    },
-    "[COLON]": {
-      "type": "shift",
       "value": 31
+    },
+    "<TOKEN>": {
+      "type": "goto",
+      "value": 23
+    },
+    "<VARIABLE>": {
+      "type": "goto",
+      "value": 15
+    },
+    "<TERMINAL>": {
+      "type": "goto",
+      "value": 16
     }
   },
   {
-    "[R_ANGLE]": {
-      "type": "reduce",
-      "value": 15
-    },
-    "[COLON]": {
-      "type": "reduce",
-      "value": 15
-    },
-    "[PIPE]": {
+    "[R_PAREN]": {
       "type": "shift",
       "value": 32
     }
   },
   {
-    "[R_BRACKET]": {
+    "[R_PAREN]": {
+      "type": "reduce",
+      "value": 7
+    },
+    "[L_PAREN]": {
       "type": "shift",
+      "value": 17
+    },
+    "[L_ANGLE]": {
+      "type": "shift",
+      "value": 18
+    },
+    "[L_BRACKET]": {
+      "type": "shift",
+      "value": 19
+    },
+    "<TOKENS>": {
+      "type": "goto",
       "value": 33
     },
-    "[COLON]": {
-      "type": "shift",
-      "value": 34
+    "<TOKEN>": {
+      "type": "goto",
+      "value": 23
+    },
+    "<VARIABLE>": {
+      "type": "goto",
+      "value": 15
+    },
+    "<TERMINAL>": {
+      "type": "goto",
+      "value": 16
     }
   },
   {
-    "[R_BRACKET]": {
-      "type": "reduce",
-      "value": 15
+    "[R_ANGLE]": {
+      "type": "shift",
+      "value": 34
     },
     "[COLON]": {
-      "type": "reduce",
-      "value": 15
-    },
-    "[PIPE]": {
       "type": "shift",
       "value": 35
     }
   },
   {
-    "[SEMICOLON]": {
+    "[R_ANGLE]": {
       "type": "reduce",
-      "value": 7
+      "value": 16
     },
-    "[R_PAREN]": {
+    "[COLON]": {
       "type": "reduce",
-      "value": 7
-    }
-  },
-  {
-    "[QUESTION_MARK]": {
+      "value": 16
+    },
+    "[PIPE]": {
       "type": "shift",
       "value": 36
     }
   },
   {
-    "[R_PAREN]": {
-      "type": "reduce",
-      "value": 7
-    }
-  },
-  {
-    "[SEMICOLON]": {
-      "type": "reduce",
-      "value": 11
-    },
-    "[R_PAREN]": {
-      "type": "reduce",
-      "value": 11
-    },
-    "[L_PAREN]": {
-      "type": "reduce",
-      "value": 11
-    },
-    "[L_ANGLE]": {
-      "type": "reduce",
-      "value": 11
-    },
-    "[L_BRACKET]": {
-      "type": "reduce",
-      "value": 11
-    }
-  },
-  {
-    "[IDENTIFIER]": {
+    "[R_BRACKET]": {
       "type": "shift",
       "value": 37
-    }
-  },
-  {
-    "[IDENTIFIER]": {
-      "type": "shift",
-      "value": 39
     },
-    "<INSIDE>": {
-      "type": "goto",
+    "[COLON]": {
+      "type": "shift",
       "value": 38
     }
   },
   {
+    "[R_BRACKET]": {
+      "type": "reduce",
+      "value": 16
+    },
+    "[COLON]": {
+      "type": "reduce",
+      "value": 16
+    },
+    "[PIPE]": {
+      "type": "shift",
+      "value": 39
+    }
+  },
+  {
+    "[L_PAREN]": {
+      "type": "shift",
+      "value": 17
+    },
+    "[L_ANGLE]": {
+      "type": "shift",
+      "value": 18
+    },
+    "[L_BRACKET]": {
+      "type": "shift",
+      "value": 19
+    },
+    "<TOKENS>": {
+      "type": "goto",
+      "value": 40
+    },
+    "<TOKEN>": {
+      "type": "goto",
+      "value": 14
+    },
+    "<VARIABLE>": {
+      "type": "goto",
+      "value": 15
+    },
+    "<TERMINAL>": {
+      "type": "goto",
+      "value": 16
+    }
+  },
+  {
     "[SEMICOLON]": {
       "type": "reduce",
-      "value": 13
+      "value": 8
     },
     "[R_PAREN]": {
       "type": "reduce",
-      "value": 13
-    },
-    "[L_PAREN]": {
-      "type": "reduce",
-      "value": 13
-    },
-    "[L_ANGLE]": {
-      "type": "reduce",
-      "value": 13
-    },
-    "[L_BRACKET]": {
-      "type": "reduce",
-      "value": 13
+      "value": 8
     }
   },
   {
-    "[IDENTIFIER]": {
+    "[QUESTION_MARK]": {
       "type": "shift",
-      "value": 40
-    }
-  },
-  {
-    "[IDENTIFIER]": {
-      "type": "shift",
-      "value": 39
-    },
-    "<INSIDE>": {
-      "type": "goto",
       "value": 41
     }
   },
   {
-    "[SEMICOLON]": {
-      "type": "reduce",
-      "value": 10
-    },
     "[R_PAREN]": {
       "type": "reduce",
-      "value": 10
-    },
-    "[L_PAREN]": {
-      "type": "reduce",
-      "value": 10
-    },
-    "[L_ANGLE]": {
-      "type": "reduce",
-      "value": 10
-    },
-    "[L_BRACKET]": {
-      "type": "reduce",
-      "value": 10
+      "value": 8
     }
   },
   {
-    "[R_ANGLE]": {
+    "[SEMICOLON]": {
+      "type": "reduce",
+      "value": 12
+    },
+    "[R_PAREN]": {
+      "type": "reduce",
+      "value": 12
+    },
+    "[L_PAREN]": {
+      "type": "reduce",
+      "value": 12
+    },
+    "[L_ANGLE]": {
+      "type": "reduce",
+      "value": 12
+    },
+    "[L_BRACKET]": {
+      "type": "reduce",
+      "value": 12
+    }
+  },
+  {
+    "[IDENTIFIER]": {
       "type": "shift",
       "value": 42
     }
   },
   {
-    "[R_ANGLE]": {
-      "type": "reduce",
-      "value": 16
-    },
-    "[COLON]": {
-      "type": "reduce",
-      "value": 16
-    }
-  },
-  {
-    "[R_ANGLE]": {
-      "type": "reduce",
-      "value": 15
-    },
-    "[COLON]": {
-      "type": "reduce",
-      "value": 15
-    },
-    "[R_BRACKET]": {
-      "type": "reduce",
-      "value": 15
-    },
-    "[PIPE]": {
-      "type": "shift",
-      "value": 43
-    }
-  },
-  {
-    "[R_BRACKET]": {
+    "[IDENTIFIER]": {
       "type": "shift",
       "value": 44
-    }
-  },
-  {
-    "[R_BRACKET]": {
-      "type": "reduce",
-      "value": 16
     },
-    "[COLON]": {
-      "type": "reduce",
-      "value": 16
+    "<INSIDE>": {
+      "type": "goto",
+      "value": 43
     }
   },
   {
     "[SEMICOLON]": {
       "type": "reduce",
-      "value": 12
+      "value": 14
     },
     "[R_PAREN]": {
       "type": "reduce",
-      "value": 12
+      "value": 14
     },
     "[L_PAREN]": {
       "type": "reduce",
-      "value": 12
+      "value": 14
     },
     "[L_ANGLE]": {
       "type": "reduce",
-      "value": 12
+      "value": 14
     },
     "[L_BRACKET]": {
       "type": "reduce",
-      "value": 12
+      "value": 14
     }
   },
   {
     "[IDENTIFIER]": {
       "type": "shift",
-      "value": 39
+      "value": 45
+    }
+  },
+  {
+    "[IDENTIFIER]": {
+      "type": "shift",
+      "value": 44
     },
     "<INSIDE>": {
       "type": "goto",
-      "value": 45
+      "value": 46
+    }
+  },
+  {
+    "[SEMICOLON]": {
+      "type": "shift",
+      "value": 47
     }
   },
   {
     "[SEMICOLON]": {
       "type": "reduce",
-      "value": 14
+      "value": 11
     },
     "[R_PAREN]": {
       "type": "reduce",
-      "value": 14
+      "value": 11
     },
     "[L_PAREN]": {
       "type": "reduce",
-      "value": 14
+      "value": 11
     },
     "[L_ANGLE]": {
       "type": "reduce",
-      "value": 14
+      "value": 11
     },
     "[L_BRACKET]": {
       "type": "reduce",
-      "value": 14
+      "value": 11
+    }
+  },
+  {
+    "[R_ANGLE]": {
+      "type": "shift",
+      "value": 48
+    }
+  },
+  {
+    "[R_ANGLE]": {
+      "type": "reduce",
+      "value": 17
+    },
+    "[COLON]": {
+      "type": "reduce",
+      "value": 17
     }
   },
   {
@@ -629,6 +599,104 @@ export const states = [
     "[R_BRACKET]": {
       "type": "reduce",
       "value": 16
+    },
+    "[PIPE]": {
+      "type": "shift",
+      "value": 49
+    }
+  },
+  {
+    "[R_BRACKET]": {
+      "type": "shift",
+      "value": 50
+    }
+  },
+  {
+    "[R_BRACKET]": {
+      "type": "reduce",
+      "value": 17
+    },
+    "[COLON]": {
+      "type": "reduce",
+      "value": 17
+    }
+  },
+  {
+    "[EOF]": {
+      "type": "reduce",
+      "value": 6
+    },
+    "[L_ANGLE]": {
+      "type": "reduce",
+      "value": 6
+    }
+  },
+  {
+    "[SEMICOLON]": {
+      "type": "reduce",
+      "value": 13
+    },
+    "[R_PAREN]": {
+      "type": "reduce",
+      "value": 13
+    },
+    "[L_PAREN]": {
+      "type": "reduce",
+      "value": 13
+    },
+    "[L_ANGLE]": {
+      "type": "reduce",
+      "value": 13
+    },
+    "[L_BRACKET]": {
+      "type": "reduce",
+      "value": 13
+    }
+  },
+  {
+    "[IDENTIFIER]": {
+      "type": "shift",
+      "value": 44
+    },
+    "<INSIDE>": {
+      "type": "goto",
+      "value": 51
+    }
+  },
+  {
+    "[SEMICOLON]": {
+      "type": "reduce",
+      "value": 15
+    },
+    "[R_PAREN]": {
+      "type": "reduce",
+      "value": 15
+    },
+    "[L_PAREN]": {
+      "type": "reduce",
+      "value": 15
+    },
+    "[L_ANGLE]": {
+      "type": "reduce",
+      "value": 15
+    },
+    "[L_BRACKET]": {
+      "type": "reduce",
+      "value": 15
+    }
+  },
+  {
+    "[R_ANGLE]": {
+      "type": "reduce",
+      "value": 17
+    },
+    "[COLON]": {
+      "type": "reduce",
+      "value": 17
+    },
+    "[R_BRACKET]": {
+      "type": "reduce",
+      "value": 17
     }
   }
 ];
@@ -641,6 +709,7 @@ export const states = [
       "type": 0
     },
     "identifier": "<S>",
+    "name": null,
     "originalProductionIndex": 0,
     "rhs": [
       {
@@ -664,12 +733,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<PROGRAM>",
+    "name": "program",
     "originalProductionIndex": 1,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 42,
+          "column": 51,
           "lexeme": "EOF",
           "line": 2,
           "type": 0
@@ -687,12 +757,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<PROGRAM>",
+    "name": "program",
     "originalProductionIndex": 1,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 13,
+          "column": 22,
           "lexeme": "PRODUCTIONS",
           "line": 2,
           "type": 0
@@ -703,7 +774,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 42,
+          "column": 51,
           "lexeme": "EOF",
           "line": 2,
           "type": 0
@@ -721,12 +792,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<PRODUCTIONS>",
+    "name": "productions",
     "originalProductionIndex": 2,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 16,
+          "column": 29,
           "lexeme": "PRODUCTION",
           "line": 3,
           "type": 0
@@ -744,12 +816,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<PRODUCTIONS>",
+    "name": "productions",
     "originalProductionIndex": 2,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 16,
+          "column": 29,
           "lexeme": "PRODUCTION",
           "line": 3,
           "type": 0
@@ -760,7 +833,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 42,
+          "column": 55,
           "lexeme": "PRODUCTIONS",
           "line": 3,
           "type": 0
@@ -778,12 +851,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<PRODUCTION>",
+    "name": "production",
     "originalProductionIndex": 3,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 15,
+          "column": 27,
           "lexeme": "L_ANGLE",
           "line": 4,
           "type": 0
@@ -794,7 +868,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 25,
+          "column": 37,
           "lexeme": "IDENTIFIER",
           "line": 4,
           "type": 0
@@ -805,7 +879,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 55,
+          "column": 97,
           "lexeme": "R_ANGLE",
           "line": 4,
           "type": 0
@@ -816,7 +890,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 65,
+          "column": 107,
           "lexeme": "COLON",
           "line": 4,
           "type": 0
@@ -827,7 +901,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 73,
+          "column": 115,
           "lexeme": "TOKENS",
           "line": 4,
           "type": 0
@@ -838,7 +912,108 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 90,
+          "column": 132,
+          "lexeme": "SEMICOLON",
+          "line": 4,
+          "type": 0
+        },
+        "identifier": "[SEMICOLON]",
+        "name": null
+      }
+    ]
+  },
+  {
+    "lhs": {
+      "column": 1,
+      "lexeme": "PRODUCTION",
+      "line": 4,
+      "type": 0
+    },
+    "identifier": "<PRODUCTION>",
+    "name": "production",
+    "originalProductionIndex": 3,
+    "rhs": [
+      {
+        "type": "terminal",
+        "token": {
+          "column": 27,
+          "lexeme": "L_ANGLE",
+          "line": 4,
+          "type": 0
+        },
+        "identifier": "[L_ANGLE]",
+        "name": null
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 37,
+          "lexeme": "IDENTIFIER",
+          "line": 4,
+          "type": 0
+        },
+        "identifier": "[IDENTIFIER]",
+        "name": "production_name"
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 68,
+          "lexeme": "COLON",
+          "line": 4,
+          "type": 0
+        },
+        "identifier": "[COLON]",
+        "name": null
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 76,
+          "lexeme": "IDENTIFIER",
+          "line": 4,
+          "type": 0
+        },
+        "identifier": "[IDENTIFIER]",
+        "name": "uuid"
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 97,
+          "lexeme": "R_ANGLE",
+          "line": 4,
+          "type": 0
+        },
+        "identifier": "[R_ANGLE]",
+        "name": null
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 107,
+          "lexeme": "COLON",
+          "line": 4,
+          "type": 0
+        },
+        "identifier": "[COLON]",
+        "name": null
+      },
+      {
+        "type": "variable",
+        "token": {
+          "column": 115,
+          "lexeme": "TOKENS",
+          "line": 4,
+          "type": 0
+        },
+        "identifier": "<TOKENS>",
+        "name": "tokens"
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 132,
           "lexeme": "SEMICOLON",
           "line": 4,
           "type": 0
@@ -856,12 +1031,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<TOKENS>",
+    "name": "tokens",
     "originalProductionIndex": 4,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 11,
+          "column": 19,
           "lexeme": "TOKEN",
           "line": 5,
           "type": 0
@@ -879,12 +1055,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<TOKENS>",
+    "name": "tokens",
     "originalProductionIndex": 4,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 11,
+          "column": 19,
           "lexeme": "TOKEN",
           "line": 5,
           "type": 0
@@ -895,7 +1072,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 27,
+          "column": 35,
           "lexeme": "TOKENS",
           "line": 5,
           "type": 0
@@ -913,12 +1090,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<TOKEN>",
+    "name": "token",
     "originalProductionIndex": 5,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 10,
+          "column": 17,
           "lexeme": "VARIABLE",
           "line": 6,
           "type": 0
@@ -936,12 +1114,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<TOKEN>",
+    "name": "token",
     "originalProductionIndex": 5,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 21,
+          "column": 28,
           "lexeme": "TERMINAL",
           "line": 6,
           "type": 0
@@ -959,12 +1138,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<TOKEN>",
+    "name": "grouped_token",
     "originalProductionIndex": 6,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 10,
+          "column": 25,
           "lexeme": "L_PAREN",
           "line": 7,
           "type": 0
@@ -975,7 +1155,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 20,
+          "column": 35,
           "lexeme": "TOKENS",
           "line": 7,
           "type": 0
@@ -986,7 +1166,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 37,
+          "column": 52,
           "lexeme": "R_PAREN",
           "line": 7,
           "type": 0
@@ -997,7 +1177,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 47,
+          "column": 62,
           "lexeme": "QUESTION_MARK",
           "line": 7,
           "type": 0
@@ -1015,12 +1195,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<VARIABLE>",
+    "name": "variable",
     "originalProductionIndex": 7,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 13,
+          "column": 23,
           "lexeme": "L_ANGLE",
           "line": 8,
           "type": 0
@@ -1031,7 +1212,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 23,
+          "column": 33,
           "lexeme": "INSIDE",
           "line": 8,
           "type": 0
@@ -1042,7 +1223,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 76,
+          "column": 86,
           "lexeme": "R_ANGLE",
           "line": 8,
           "type": 0
@@ -1060,12 +1241,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<VARIABLE>",
+    "name": "variable",
     "originalProductionIndex": 7,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 13,
+          "column": 23,
           "lexeme": "L_ANGLE",
           "line": 8,
           "type": 0
@@ -1076,7 +1258,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 23,
+          "column": 33,
           "lexeme": "INSIDE",
           "line": 8,
           "type": 0
@@ -1087,7 +1269,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 41,
+          "column": 51,
           "lexeme": "COLON",
           "line": 8,
           "type": 0
@@ -1098,7 +1280,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 49,
+          "column": 59,
           "lexeme": "IDENTIFIER",
           "line": 8,
           "type": 0
@@ -1109,7 +1291,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 76,
+          "column": 86,
           "lexeme": "R_ANGLE",
           "line": 8,
           "type": 0
@@ -1127,12 +1309,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<TERMINAL>",
+    "name": "terminal",
     "originalProductionIndex": 8,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 13,
+          "column": 23,
           "lexeme": "L_BRACKET",
           "line": 9,
           "type": 0
@@ -1143,7 +1326,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 25,
+          "column": 35,
           "lexeme": "INSIDE",
           "line": 9,
           "type": 0
@@ -1154,7 +1337,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 78,
+          "column": 88,
           "lexeme": "R_BRACKET",
           "line": 9,
           "type": 0
@@ -1172,12 +1355,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<TERMINAL>",
+    "name": "terminal",
     "originalProductionIndex": 8,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 13,
+          "column": 23,
           "lexeme": "L_BRACKET",
           "line": 9,
           "type": 0
@@ -1188,7 +1372,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 25,
+          "column": 35,
           "lexeme": "INSIDE",
           "line": 9,
           "type": 0
@@ -1199,7 +1383,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 43,
+          "column": 53,
           "lexeme": "COLON",
           "line": 9,
           "type": 0
@@ -1210,7 +1394,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 51,
+          "column": 61,
           "lexeme": "IDENTIFIER",
           "line": 9,
           "type": 0
@@ -1221,7 +1405,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 78,
+          "column": 88,
           "lexeme": "R_BRACKET",
           "line": 9,
           "type": 0
@@ -1239,12 +1423,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<INSIDE>",
+    "name": "inside",
     "originalProductionIndex": 9,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 11,
+          "column": 19,
           "lexeme": "IDENTIFIER",
           "line": 10,
           "type": 0
@@ -1262,12 +1447,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<INSIDE>",
+    "name": "inside",
     "originalProductionIndex": 9,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 11,
+          "column": 19,
           "lexeme": "IDENTIFIER",
           "line": 10,
           "type": 0
@@ -1278,7 +1464,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 37,
+          "column": 45,
           "lexeme": "PIPE",
           "line": 10,
           "type": 0
@@ -1289,7 +1475,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 44,
+          "column": 52,
           "lexeme": "INSIDE",
           "line": 10,
           "type": 0

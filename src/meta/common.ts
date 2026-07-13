@@ -4,6 +4,7 @@ export type Production = {
   lhs: GrammarToken;
   identifier: string;
   originalProductionIndex: number;
+  name: string | null;
   rhs: { type: "terminal" | "variable"; token: GrammarToken; identifier: string; name: string | null }[];
 };
 
@@ -17,10 +18,12 @@ const hydrateGrammarToken = (
   return new Token(token.type, token.lexeme, new ColumnAndRow(token.line, token.column), {});
 };
 
-export const dehydateProduction = ({ lhs, identifier, rhs, originalProductionIndex }: Production) => {
+export const dehydateProduction = (opts: Production) => {
+  const { lhs, identifier, rhs, originalProductionIndex, name } = opts;
   return {
     lhs: dehydateGrammarToken(lhs),
     identifier,
+    name,
     originalProductionIndex,
     rhs: rhs.map(({ type, token, identifier, name }) => ({
       type,
@@ -36,6 +39,7 @@ export const hydrateProduction = (production: ReturnType<typeof dehydateProducti
     lhs: hydrateGrammarToken(production.lhs),
     identifier: production.identifier,
     originalProductionIndex: production.originalProductionIndex,
+    name: production.name,
     rhs: production.rhs.map(({ type, token, name }) => ({
       type,
       token: hydrateGrammarToken(token),

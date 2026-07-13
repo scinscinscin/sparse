@@ -174,7 +174,7 @@ async function main() {
   const parserGenerator = Sparse.fromProductions<LoLangTokenType, {}, Node>({ productions, toStringifiedTokenType });
 
   const parser = parserGenerator.generate(lexer, {
-    reducer: (input, productionIndex) => new Node(input),
+    reducer: (_, { input }) => new Node(input),
     recover({ lexer, statesStack, symbolsStack, isSafe, addError, crash, finish, states }) {
       let token = lexer.peekNextToken();
       const currentState = statesStack.peek();

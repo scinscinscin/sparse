@@ -1,6 +1,6 @@
 <S>: <PROGRAM>;
-<PROGRAM>: <STATES: states> [EOF];
-<STATES>: <ITEMS: state> (<STATES: rest>)?;
-<ITEMS>: <ITEM: item> ([COMMA] <ITEMS: rest>)?;
-<ITEM>: [L_BRACKET] [IDENTIFIER: name] [R_BRACKET] [EQUALS] [IDENTIFIER: action];
-<ITEM>: [L_ANGLE] [IDENTIFIER: name] [R_ANGLE] [EQUALS] [NUMBER: state];
+<PROGRAM: program>: <STATES: states> [EOF];
+<STATES: states>: <ITEMS: state> (<STATES: rest>)?;
+<ITEMS: items>: <ITEM: item> ([COMMA] <ITEMS: rest>)?;
+<ITEM: terminal>: [L_BRACKET] [IDENTIFIER: name] [R_BRACKET] [EQUALS] [IDENTIFIER: action];
+<ITEM: variable>: [L_ANGLE] [IDENTIFIER: name] [R_ANGLE] [EQUALS] [NUMBER: state];

@@ -51,6 +51,7 @@ export const tryBuildProductions = (lexer: LexerInterface | string): Result<Prod
       lhs: productionLHS,
       identifier: productionLHS.lexeme,
       rhs: [],
+      name: null,
       originalProductionIndex: productionIndex++,
     };
 

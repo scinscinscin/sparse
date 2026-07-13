@@ -269,6 +269,7 @@ export const states = [
       "type": 0
     },
     "identifier": "<S>",
+    "name": null,
     "originalProductionIndex": 0,
     "rhs": [
       {
@@ -292,12 +293,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<PROGRAM>",
+    "name": "program",
     "originalProductionIndex": 1,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 12,
+          "column": 21,
           "lexeme": "STATES",
           "line": 2,
           "type": 0
@@ -308,7 +310,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 29,
+          "column": 38,
           "lexeme": "EOF",
           "line": 2,
           "type": 0
@@ -326,12 +328,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<STATES>",
+    "name": "states",
     "originalProductionIndex": 2,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 11,
+          "column": 19,
           "lexeme": "ITEMS",
           "line": 3,
           "type": 0
@@ -349,12 +352,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<STATES>",
+    "name": "states",
     "originalProductionIndex": 2,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 11,
+          "column": 19,
           "lexeme": "ITEMS",
           "line": 3,
           "type": 0
@@ -365,7 +369,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 27,
+          "column": 35,
           "lexeme": "STATES",
           "line": 3,
           "type": 0
@@ -383,12 +387,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<ITEMS>",
+    "name": "items",
     "originalProductionIndex": 3,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 10,
+          "column": 17,
           "lexeme": "ITEM",
           "line": 4,
           "type": 0
@@ -406,12 +411,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<ITEMS>",
+    "name": "items",
     "originalProductionIndex": 3,
     "rhs": [
       {
         "type": "variable",
         "token": {
-          "column": 10,
+          "column": 17,
           "lexeme": "ITEM",
           "line": 4,
           "type": 0
@@ -422,7 +428,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 24,
+          "column": 31,
           "lexeme": "COMMA",
           "line": 4,
           "type": 0
@@ -433,7 +439,7 @@ export const states = [
       {
         "type": "variable",
         "token": {
-          "column": 32,
+          "column": 39,
           "lexeme": "ITEMS",
           "line": 4,
           "type": 0
@@ -451,12 +457,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<ITEM>",
+    "name": "terminal",
     "originalProductionIndex": 4,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 9,
+          "column": 19,
           "lexeme": "L_BRACKET",
           "line": 5,
           "type": 0
@@ -467,7 +474,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 21,
+          "column": 31,
           "lexeme": "IDENTIFIER",
           "line": 5,
           "type": 0
@@ -478,7 +485,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 40,
+          "column": 50,
           "lexeme": "R_BRACKET",
           "line": 5,
           "type": 0
@@ -489,7 +496,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 52,
+          "column": 62,
           "lexeme": "EQUALS",
           "line": 5,
           "type": 0
@@ -500,7 +507,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 61,
+          "column": 71,
           "lexeme": "IDENTIFIER",
           "line": 5,
           "type": 0
@@ -518,12 +525,13 @@ export const states = [
       "type": 0
     },
     "identifier": "<ITEM>",
+    "name": "variable",
     "originalProductionIndex": 5,
     "rhs": [
       {
         "type": "terminal",
         "token": {
-          "column": 9,
+          "column": 19,
           "lexeme": "L_ANGLE",
           "line": 6,
           "type": 0
@@ -534,7 +542,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 19,
+          "column": 29,
           "lexeme": "IDENTIFIER",
           "line": 6,
           "type": 0
@@ -545,7 +553,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 38,
+          "column": 48,
           "lexeme": "R_ANGLE",
           "line": 6,
           "type": 0
@@ -556,7 +564,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 48,
+          "column": 58,
           "lexeme": "EQUALS",
           "line": 6,
           "type": 0
@@ -567,7 +575,7 @@ export const states = [
       {
         "type": "terminal",
         "token": {
-          "column": 57,
+          "column": 67,
           "lexeme": "NUMBER",
           "line": 6,
           "type": 0

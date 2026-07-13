@@ -70,6 +70,7 @@ class ProductionNode extends BaseNode {
     public readonly lhs: GrammarToken,
     public readonly rhs: ListNode<TokenNode | GroupedTokenNode>,
     public originalProductionIndex: number,
+    public readonly name?: string | undefined,
   ) {
     super();
   }
@@ -83,6 +84,7 @@ class ProductionNode extends BaseNode {
     return {
       lhs: this.lhs,
       identifier: `<${this.lhs.lexeme}>`,
+      name: this.name ?? null,
       originalProductionIndex: this.originalProductionIndex,
       rhs: this.rhs.getItemsReversed().map((node) => (node as TokenNode).toStruct()),
     };
@@ -110,6 +112,7 @@ function expandProduction(production: ProductionNode): ProductionNode[] {
         production.lhs,
         new ListNode<TokenNode | GroupedTokenNode>([...beforeItems, ...afterItems].toReversed()),
         production.originalProductionIndex,
+        production.name,
       );
 
       const withCurrentItem = new ProductionNode(
@@ -118,6 +121,7 @@ function expandProduction(production: ProductionNode): ProductionNode[] {
           [...beforeItems, ...item.inside.getItemsReversed(), ...afterItems].toReversed(),
         ),
         production.originalProductionIndex,
+        production.name,
       );
 
       const newProductions: ProductionNode[] = [withoutCurrentItem, withCurrentItem];
@@ -135,6 +139,7 @@ function expandProduction(production: ProductionNode): ProductionNode[] {
               new TokenNode("variable", new ListNode<GrammarToken>([variable]), item.name),
             ]),
             production.originalProductionIndex,
+            production.name,
           );
         });
 
@@ -201,46 +206,49 @@ export function getSelfHostedParserGenerator(e: typeof selfhosted = selfhosted) 
 }
 
 type Reducer = (bag: any) => BaseNode;
-const reducers: Reducer[] = [
-  undefined as any,
-
-  (bag: { productions?: ListNode<ProductionNode> }) =>
+const reducers: { [key: string]: Reducer } = {
+  program: (bag: { productions?: ListNode<ProductionNode> }) =>
     new ProgramNode(bag.productions ?? new ListNode<ProductionNode>([])),
 
-  (bag: { production: ProductionNode; rest?: ListNode<ProductionNode> }) => {
+  productions: (bag: { production: ProductionNode; rest?: ListNode<ProductionNode> }) => {
     if (bag.rest == null) return new ListNode<ProductionNode>([bag.production]);
     else return bag.rest.add(bag.production);
   },
 
-  (bag: { production_name: GrammarToken; tokens: ListNode<TokenNode | GroupedTokenNode> }) =>
-    new ProductionNode(bag.production_name, bag.tokens, -1),
+  production: (bag: {
+    production_name: GrammarToken;
+    tokens: ListNode<TokenNode | GroupedTokenNode>;
+    uuid?: GrammarToken;
+  }) => new ProductionNode(bag.production_name, bag.tokens, -1, bag.uuid?.lexeme),
 
-  (bag: { token: TokenNode | GroupedTokenNode; rest?: ListNode<TokenNode | GroupedTokenNode> }) => {
+  tokens: (bag: { token: TokenNode | GroupedTokenNode; rest?: ListNode<TokenNode | GroupedTokenNode> }) => {
     if (bag.rest == null) return new ListNode<TokenNode | GroupedTokenNode>([bag.token]);
     else return bag.rest.add(bag.token);
   },
 
-  (bag: { token: TokenNode }) => bag.token,
-  (bag: { tokens: ListNode<TokenNode> }) => new GroupedTokenNode(bag.tokens),
+  token: (bag: { token: TokenNode }) => bag.token,
+  grouped_token: (bag: { tokens: ListNode<TokenNode> }) => new GroupedTokenNode(bag.tokens),
 
-  (bag: { inside: ListNode<GrammarToken>; token_name?: GrammarToken }) =>
+  variable: (bag: { inside: ListNode<GrammarToken>; token_name?: GrammarToken }) =>
     new TokenNode("variable", bag.inside, bag.token_name?.lexeme),
 
-  (bag: { inside: ListNode<GrammarToken>; token_name?: GrammarToken }) =>
+  terminal: (bag: { inside: ListNode<GrammarToken>; token_name?: GrammarToken }) =>
     new TokenNode("terminal", bag.inside, bag.token_name?.lexeme),
 
-  (bag: { identifier: GrammarToken; rest?: ListNode<GrammarToken> }) => {
+  inside: (bag: { identifier: GrammarToken; rest?: ListNode<GrammarToken> }) => {
     if (bag.rest == null) return new ListNode<GrammarToken>([bag.identifier]);
     else return bag.rest.add(bag.identifier);
   },
-];
+};
 
 export const tryBuildProductions = (lexer: LexerInterface | string): Result<Production[]> => {
   if (typeof lexer === "string") lexer = grammarLexerGenerator.generate(lexer, () => ({}));
 
   const parserGenerator = getSelfHostedParserGenerator();
   const parser = parserGenerator.generate(lexer as RegexEngine<GrammarTokenType, GrammarTokenMetadata>, {
-    reducer: (_, productionIndex, bag) => reducers[productionIndex](bag),
+    reducer: ({ bag, name }) => {
+      return reducers[name ?? ""](bag);
+    },
   });
 
   const parsingResult = parser.parse().result as ProgramNode;

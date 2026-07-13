@@ -29,20 +29,19 @@ class ItemNode extends BaseNode {
 }
 
 type Reducer = (bag: any) => BaseNode;
-const reducers: Reducer[] = [
-  undefined as any,
-  (bag: { states: ListNode<StateNode> }) => bag.states,
-  (bag: { state: ListNode<ItemNode>; rest?: ListNode<StateNode> }) => {
+const reducers: { [key: string]: Reducer } = {
+  program: (bag: { states: ListNode<StateNode> }) => bag.states,
+  states: (bag: { state: ListNode<ItemNode>; rest?: ListNode<StateNode> }) => {
     if (bag.rest == null) return new ListNode<StateNode>([new StateNode(bag.state)]);
     else return bag.rest.add(new StateNode(bag.state));
   },
 
-  (bag: { item: ItemNode; rest?: ListNode<ItemNode> }) => {
+  items: (bag: { item: ItemNode; rest?: ListNode<ItemNode> }) => {
     if (bag.rest == null) return new ListNode<ItemNode>([bag.item]);
     else return bag.rest.add(bag.item);
   },
 
-  (bag: { name: GrammarToken; action: GrammarToken }) => {
+  terminal: (bag: { name: GrammarToken; action: GrammarToken }) => {
     const action: TableAction = {
       type: bag.action.lexeme.startsWith("s") ? "shift" : "reduce",
       value: parseInt(bag.action.lexeme.substring(1)),
@@ -50,17 +49,17 @@ const reducers: Reducer[] = [
     return new ItemNode("terminal", bag.name, action);
   },
 
-  (bag: { name: GrammarToken; state: GrammarToken }) => {
+  variable: (bag: { name: GrammarToken; state: GrammarToken }) => {
     const action: TableAction = { type: "goto", value: parseInt(bag.state.lexeme) };
     return new ItemNode("variable", bag.name, action);
   },
-];
+};
 
 export const buildStates = (grammar: string): TableState[] => {
   const lexer = grammarLexerGenerator.generate(grammar, () => ({}));
   const parserGenerator = getSelfHostedParserGenerator(selfhosted as any);
   const parser = parserGenerator.generate(lexer, {
-    reducer: (_, productionIndex, bag) => reducers[productionIndex](bag),
+    reducer: ({ bag, name }) => reducers[name ?? ""](bag),
   });
 
   const parsingResult = (parser.parse().result as ListNode<StateNode>).getItemsReversed();

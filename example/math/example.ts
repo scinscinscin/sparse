@@ -39,7 +39,7 @@ async function main() {
   const states = buildStates(await fs.readFile("./example/math/table.txt", "utf8"));
   const parserGenerator = new Sparse<TokenType, Metadata, Node>({ productions, states, toStringifiedTokenType });
 
-  const parser = parserGenerator.generate(lexer, { reducer: (input, productionIndex) => new Node(input) });
+  const parser = parserGenerator.generate(lexer, { reducer: (_, { input }) => new Node(input) });
   console.log(parser.parse().result!.toObject());
 }
 

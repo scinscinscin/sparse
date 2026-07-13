@@ -30,6 +30,11 @@ export class TableState {
   }
 }
 
+type ReducerType<TokenType, Metadata, Node> = (
+  newInput: { bag: any; name: string | null },
+  oldInput: { input: LR1StackSymbol<TokenType, Metadata, Node>[]; index: number },
+) => Node;
+
 export type LR1StackSymbol<TokenType, Metadata, Node> =
   | { type: "token"; token: Token<TokenType, Metadata> }
   | { type: "node"; node: Node };
@@ -73,7 +78,7 @@ export class Sparse<TokenType, Metadata, Node> {
   public generate(
     lexer: ReturnType<Slex<TokenType, Metadata>["generate"]>,
     options: {
-      reducer: (input: LR1StackSymbol<TokenType, Metadata, Node>[], productionIndex: number, bag: any) => Node;
+      reducer: ReducerType<TokenType, Metadata, Node>;
       recover?: ParserRecoveryFunction<TokenType, Metadata, Node>;
     },
   ) {
@@ -112,11 +117,7 @@ class LR1Parser<TokenType, Metadata, Node> {
       states: TableState[];
       toStringifiedTokenType: (tokenType: TokenType) => string;
     },
-    public readonly reducer: (
-      input: LR1StackSymbol<TokenType, Metadata, Node>[],
-      productionIndex: number,
-      bag: any,
-    ) => Node,
+    public readonly reducer: ReducerType<TokenType, Metadata, Node>,
     public readonly recover: ParserRecoveryFunction<TokenType, Metadata, Node> | null,
     public readonly lexer: ReturnType<Slex<TokenType, Metadata>["generate"]>,
   ) {}
@@ -191,7 +192,10 @@ class LR1Parser<TokenType, Metadata, Node> {
               bag[rhsItem.name] = poppedItem.type === "token" ? poppedItem.token : poppedItem.node;
           }
 
-          const node = this.reducer(popped, productionIndex, bag);
+          const newInput = { bag, name: production.name };
+          const oldInput = { input: popped, index: productionIndex };
+
+          const node = this.reducer(newInput, oldInput);
           this.symbolsStack.push({ type: "node", node });
         } catch (err) {
           const input = JSON.stringify(popped, null, 2);
