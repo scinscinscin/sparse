@@ -136,7 +136,7 @@ function expandProduction(production: ProductionNode): ProductionNode[] {
             production.lhs,
             new ListNode<TokenNode | GroupedTokenNode>([
               ...beforeItems,
-              new TokenNode("variable", new ListNode<GrammarToken>([variable]), item.name),
+              new TokenNode(item.type, new ListNode<GrammarToken>([variable]), item.name),
             ]),
             production.originalProductionIndex,
             production.name,
