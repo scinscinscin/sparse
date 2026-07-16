@@ -7,6 +7,7 @@ import { GrammarToken, GrammarTokenMetadata, GrammarTokenType, hydrateProduction
 export const grammarLexerGenerator = new Slex<GrammarTokenType, GrammarTokenMetadata>({
   EOF_TYPE: GrammarTokenType.EOF,
   isHigherPrecedence: () => false,
+  ignoreTokens: [GrammarTokenType.SINGLE_LINE_COMMENT, GrammarTokenType.MULTI_LINE_COMMENT],
 });
 
 grammarLexerGenerator.addRule(
@@ -38,6 +39,9 @@ grammarLexerGenerator.addRule("equals", "$=", GrammarTokenType.EQUALS);
 grammarLexerGenerator.addRule("comma", "$,", GrammarTokenType.COMMA);
 grammarLexerGenerator.addRule("question_mark", "$?", GrammarTokenType.QUESTION_MARK);
 grammarLexerGenerator.addRule("number", "(${digit})+", GrammarTokenType.NUMBER);
+
+grammarLexerGenerator.addRule("single_line_comment", "$/$/(($\n)!)*", GrammarTokenType.SINGLE_LINE_COMMENT);
+grammarLexerGenerator.addRule("multi_line_comment", "$/$*(($*)!|($*($/)!))*$*$/", GrammarTokenType.MULTI_LINE_COMMENT);
 
 export abstract class BaseNode {}
 

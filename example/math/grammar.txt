@@ -1,6 +1,8 @@
 <S>: <PROGRAM>;
 <PROGRAM>: <EXPRESSION> [EOF];
 <PROGRAM>: [EOF];
+
+// Begin parsing arithmetic expressions
 <EXPRESSION>: <TERM_EXPRESSION>;
 <TERM_EXPRESSION>: <FACTOR_EXPRESSION> [PLUS] <TERM_EXPRESSION>;
 <TERM_EXPRESSION>: <FACTOR_EXPRESSION> [MINUS] <TERM_EXPRESSION>;
@@ -8,4 +10,11 @@
 <FACTOR_EXPRESSION>: <ENDPOINT> [STAR] <FACTOR_EXPRESSION>;
 <FACTOR_EXPRESSION>: <ENDPOINT> [SLASH] <FACTOR_EXPRESSION>;
 <FACTOR_EXPRESSION>: <ENDPOINT>;
+
+/**
+ * Right now it only supports a single type of number, 
+ * but this can be implemented in many ways by the lexer.
+ * For example, the lexer could return both a hex constant 
+ * or decimal constant using the same token type.
+ */
 <ENDPOINT>: [NUMBER];

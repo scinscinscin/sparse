@@ -66,6 +66,8 @@ export enum GrammarTokenType {
   EQUALS,
   COMMA,
   EOF,
+  SINGLE_LINE_COMMENT,
+  MULTI_LINE_COMMENT,
 
   PRODUCTION_NAME,
   TOKEN_NAME,
