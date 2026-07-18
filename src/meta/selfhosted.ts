@@ -138,10 +138,13 @@ function expandProduction(production: ProductionNode): ProductionNode[] {
         const newProductions = variables.map((variable) => {
           return new ProductionNode(
             production.lhs,
-            new ListNode<TokenNode | GroupedTokenNode>([
-              ...beforeItems,
-              new TokenNode(item.type, new ListNode<GrammarToken>([variable]), item.name),
-            ]),
+            new ListNode<TokenNode | GroupedTokenNode>(
+              [
+                ...beforeItems,
+                new TokenNode(item.type, new ListNode<GrammarToken>([variable]), item.name),
+                ...afterItems,
+              ].toReversed(),
+            ),
             production.originalProductionIndex,
             production.name,
           );
