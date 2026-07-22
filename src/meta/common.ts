@@ -60,6 +60,8 @@ export enum GrammarTokenType {
   R_PAREN,
   PIPE,
   QUESTION_MARK,
+  STAR,
+  PLUS,
   COLON,
   SEMICOLON,
   NUMBER,

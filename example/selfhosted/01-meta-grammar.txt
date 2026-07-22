@@ -4,7 +4,7 @@
 <PRODUCTION: production>: [L_ANGLE] [IDENTIFIER: production_name] ([COLON] [IDENTIFIER: uuid])? [R_ANGLE] [COLON] <TOKENS: tokens> [SEMICOLON];
 <TOKENS: tokens>: <TOKEN: token> (<TOKENS: rest>)?;
 <TOKEN: token>: <VARIABLE | TERMINAL: token>;
-<TOKEN: grouped_token>: [L_PAREN] <TOKENS: tokens> [R_PAREN] [QUESTION_MARK: question_mark];
+<TOKEN: grouped_token>: [L_PAREN] <TOKENS: tokens> [R_PAREN] [QUESTION_MARK | PLUS | STAR: modifier];
 <VARIABLE: variable>: [L_ANGLE] <INSIDE: inside> ([COLON] [IDENTIFIER: token_name])? [R_ANGLE];
 <TERMINAL: terminal>: [L_BRACKET] <INSIDE: inside> ([COLON] [IDENTIFIER: token_name])? [R_BRACKET];
 <INSIDE: inside>: [IDENTIFIER: identifier] ([PIPE] <INSIDE: rest>)?;

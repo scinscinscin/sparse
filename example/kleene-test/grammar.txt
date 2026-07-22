@@ -1,0 +1,2 @@
+<S>: <PROGRAM>;
+<PROGRAM: program>: [NUMBER: first_number] ([PLUS: op] [NUMBER: extra_number])* [EOF];

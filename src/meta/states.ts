@@ -380,11 +380,11 @@ export const states = [
   {
     "[R_ANGLE]": {
       "type": "reduce",
-      "value": 16
+      "value": 18
     },
     "[COLON]": {
       "type": "reduce",
-      "value": 16
+      "value": 18
     },
     "[PIPE]": {
       "type": "shift",
@@ -404,11 +404,11 @@ export const states = [
   {
     "[R_BRACKET]": {
       "type": "reduce",
-      "value": 16
+      "value": 18
     },
     "[COLON]": {
       "type": "reduce",
-      "value": 16
+      "value": 18
     },
     "[PIPE]": {
       "type": "shift",
@@ -459,6 +459,14 @@ export const states = [
     "[QUESTION_MARK]": {
       "type": "shift",
       "value": 41
+    },
+    "[PLUS]": {
+      "type": "shift",
+      "value": 42
+    },
+    "[STAR]": {
+      "type": "shift",
+      "value": 43
     }
   },
   {
@@ -470,86 +478,86 @@ export const states = [
   {
     "[SEMICOLON]": {
       "type": "reduce",
-      "value": 12
+      "value": 14
     },
     "[R_PAREN]": {
       "type": "reduce",
-      "value": 12
+      "value": 14
     },
     "[L_PAREN]": {
       "type": "reduce",
-      "value": 12
+      "value": 14
     },
     "[L_ANGLE]": {
       "type": "reduce",
-      "value": 12
+      "value": 14
     },
     "[L_BRACKET]": {
       "type": "reduce",
-      "value": 12
-    }
-  },
-  {
-    "[IDENTIFIER]": {
-      "type": "shift",
-      "value": 42
+      "value": 14
     }
   },
   {
     "[IDENTIFIER]": {
       "type": "shift",
       "value": 44
-    },
-    "<INSIDE>": {
-      "type": "goto",
-      "value": 43
-    }
-  },
-  {
-    "[SEMICOLON]": {
-      "type": "reduce",
-      "value": 14
-    },
-    "[R_PAREN]": {
-      "type": "reduce",
-      "value": 14
-    },
-    "[L_PAREN]": {
-      "type": "reduce",
-      "value": 14
-    },
-    "[L_ANGLE]": {
-      "type": "reduce",
-      "value": 14
-    },
-    "[L_BRACKET]": {
-      "type": "reduce",
-      "value": 14
     }
   },
   {
     "[IDENTIFIER]": {
       "type": "shift",
+      "value": 46
+    },
+    "<INSIDE>": {
+      "type": "goto",
       "value": 45
     }
   },
   {
-    "[IDENTIFIER]": {
-      "type": "shift",
-      "value": 44
+    "[SEMICOLON]": {
+      "type": "reduce",
+      "value": 16
     },
-    "<INSIDE>": {
-      "type": "goto",
-      "value": 46
+    "[R_PAREN]": {
+      "type": "reduce",
+      "value": 16
+    },
+    "[L_PAREN]": {
+      "type": "reduce",
+      "value": 16
+    },
+    "[L_ANGLE]": {
+      "type": "reduce",
+      "value": 16
+    },
+    "[L_BRACKET]": {
+      "type": "reduce",
+      "value": 16
     }
   },
   {
-    "[SEMICOLON]": {
+    "[IDENTIFIER]": {
       "type": "shift",
       "value": 47
     }
   },
   {
+    "[IDENTIFIER]": {
+      "type": "shift",
+      "value": 46
+    },
+    "<INSIDE>": {
+      "type": "goto",
+      "value": 48
+    }
+  },
+  {
+    "[SEMICOLON]": {
+      "type": "shift",
+      "value": 49
+    }
+  },
+  {
     "[SEMICOLON]": {
       "type": "reduce",
       "value": 11
@@ -572,53 +580,97 @@ export const states = [
     }
   },
   {
-    "[R_ANGLE]": {
-      "type": "shift",
-      "value": 48
+    "[SEMICOLON]": {
+      "type": "reduce",
+      "value": 12
+    },
+    "[R_PAREN]": {
+      "type": "reduce",
+      "value": 12
+    },
+    "[L_PAREN]": {
+      "type": "reduce",
+      "value": 12
+    },
+    "[L_ANGLE]": {
+      "type": "reduce",
+      "value": 12
+    },
+    "[L_BRACKET]": {
+      "type": "reduce",
+      "value": 12
+    }
+  },
+  {
+    "[SEMICOLON]": {
+      "type": "reduce",
+      "value": 13
+    },
+    "[R_PAREN]": {
+      "type": "reduce",
+      "value": 13
+    },
+    "[L_PAREN]": {
+      "type": "reduce",
+      "value": 13
+    },
+    "[L_ANGLE]": {
+      "type": "reduce",
+      "value": 13
+    },
+    "[L_BRACKET]": {
+      "type": "reduce",
+      "value": 13
     }
   },
   {
     "[R_ANGLE]": {
-      "type": "reduce",
-      "value": 17
-    },
-    "[COLON]": {
-      "type": "reduce",
-      "value": 17
-    }
-  },
-  {
-    "[R_ANGLE]": {
-      "type": "reduce",
-      "value": 16
-    },
-    "[COLON]": {
-      "type": "reduce",
-      "value": 16
-    },
-    "[R_BRACKET]": {
-      "type": "reduce",
-      "value": 16
-    },
-    "[PIPE]": {
-      "type": "shift",
-      "value": 49
-    }
-  },
-  {
-    "[R_BRACKET]": {
       "type": "shift",
       "value": 50
     }
   },
   {
-    "[R_BRACKET]": {
+    "[R_ANGLE]": {
       "type": "reduce",
-      "value": 17
+      "value": 19
     },
     "[COLON]": {
       "type": "reduce",
-      "value": 17
+      "value": 19
+    }
+  },
+  {
+    "[R_ANGLE]": {
+      "type": "reduce",
+      "value": 18
+    },
+    "[COLON]": {
+      "type": "reduce",
+      "value": 18
+    },
+    "[R_BRACKET]": {
+      "type": "reduce",
+      "value": 18
+    },
+    "[PIPE]": {
+      "type": "shift",
+      "value": 51
+    }
+  },
+  {
+    "[R_BRACKET]": {
+      "type": "shift",
+      "value": 52
+    }
+  },
+  {
+    "[R_BRACKET]": {
+      "type": "reduce",
+      "value": 19
+    },
+    "[COLON]": {
+      "type": "reduce",
+      "value": 19
     }
   },
   {
@@ -634,69 +686,69 @@ export const states = [
   {
     "[SEMICOLON]": {
       "type": "reduce",
-      "value": 13
+      "value": 15
     },
     "[R_PAREN]": {
       "type": "reduce",
-      "value": 13
+      "value": 15
     },
     "[L_PAREN]": {
       "type": "reduce",
-      "value": 13
+      "value": 15
     },
     "[L_ANGLE]": {
       "type": "reduce",
-      "value": 13
+      "value": 15
     },
     "[L_BRACKET]": {
       "type": "reduce",
-      "value": 13
+      "value": 15
     }
   },
   {
     "[IDENTIFIER]": {
       "type": "shift",
-      "value": 44
+      "value": 46
     },
     "<INSIDE>": {
       "type": "goto",
-      "value": 51
+      "value": 53
     }
   },
   {
     "[SEMICOLON]": {
       "type": "reduce",
-      "value": 15
+      "value": 17
     },
     "[R_PAREN]": {
       "type": "reduce",
-      "value": 15
+      "value": 17
     },
     "[L_PAREN]": {
       "type": "reduce",
-      "value": 15
+      "value": 17
     },
     "[L_ANGLE]": {
       "type": "reduce",
-      "value": 15
+      "value": 17
     },
     "[L_BRACKET]": {
       "type": "reduce",
-      "value": 15
+      "value": 17
     }
   },
   {
     "[R_ANGLE]": {
       "type": "reduce",
-      "value": 17
+      "value": 19
     },
     "[COLON]": {
       "type": "reduce",
-      "value": 17
+      "value": 19
     },
     "[R_BRACKET]": {
       "type": "reduce",
-      "value": 17
+      "value": 19
     }
   }
 ];
@@ -1183,7 +1235,121 @@ export const states = [
           "type": 0
         },
         "identifier": "[QUESTION_MARK]",
-        "name": "question_mark"
+        "name": "modifier"
+      }
+    ]
+  },
+  {
+    "lhs": {
+      "column": 1,
+      "lexeme": "TOKEN",
+      "line": 7,
+      "type": 0
+    },
+    "identifier": "<TOKEN>",
+    "name": "grouped_token",
+    "originalProductionIndex": 6,
+    "rhs": [
+      {
+        "type": "terminal",
+        "token": {
+          "column": 25,
+          "lexeme": "L_PAREN",
+          "line": 7,
+          "type": 0
+        },
+        "identifier": "[L_PAREN]",
+        "name": null
+      },
+      {
+        "type": "variable",
+        "token": {
+          "column": 35,
+          "lexeme": "TOKENS",
+          "line": 7,
+          "type": 0
+        },
+        "identifier": "<TOKENS>",
+        "name": "tokens"
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 52,
+          "lexeme": "R_PAREN",
+          "line": 7,
+          "type": 0
+        },
+        "identifier": "[R_PAREN]",
+        "name": null
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 78,
+          "lexeme": "PLUS",
+          "line": 7,
+          "type": 0
+        },
+        "identifier": "[PLUS]",
+        "name": "modifier"
+      }
+    ]
+  },
+  {
+    "lhs": {
+      "column": 1,
+      "lexeme": "TOKEN",
+      "line": 7,
+      "type": 0
+    },
+    "identifier": "<TOKEN>",
+    "name": "grouped_token",
+    "originalProductionIndex": 6,
+    "rhs": [
+      {
+        "type": "terminal",
+        "token": {
+          "column": 25,
+          "lexeme": "L_PAREN",
+          "line": 7,
+          "type": 0
+        },
+        "identifier": "[L_PAREN]",
+        "name": null
+      },
+      {
+        "type": "variable",
+        "token": {
+          "column": 35,
+          "lexeme": "TOKENS",
+          "line": 7,
+          "type": 0
+        },
+        "identifier": "<TOKENS>",
+        "name": "tokens"
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 52,
+          "lexeme": "R_PAREN",
+          "line": 7,
+          "type": 0
+        },
+        "identifier": "[R_PAREN]",
+        "name": null
+      },
+      {
+        "type": "terminal",
+        "token": {
+          "column": 85,
+          "lexeme": "STAR",
+          "line": 7,
+          "type": 0
+        },
+        "identifier": "[STAR]",
+        "name": "modifier"
       }
     ]
   },
