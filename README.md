@@ -107,9 +107,7 @@ console.log(parser.parse().result!.toObject());
 
 ## Exporting and Loading the Parsing Table
 
-It takes a while for Sparse to build states (around 0.5 seconds seconds for a file containing 150 productions). This can be alleviated by generating the parsing table and loading the states directly instead. This method also allows you to edit the parsing table to resolve parsing conflicts.
-
-To create the the states, you can run `npx @scinorandex/sparse --input=<input> --output=<output>`.
+You can export the parsing table with `npx @scinorandex/sparse --input=<input> --output=<output> --export`.
 
 By default, LR(1) states are generated. You can generate LALR(1) states instead by passing the `--lalr` flag (or setting `mode: "lalr1"` in `Sparse.fromProductions`): the resulting table is never larger than the LR(1) one, but generation fails if the grammar is not LALR(1). Using LALR(1) yields a ~35% performance boost over LR(1) for the same grammar (tested on the LoLang example).
 
