@@ -121,7 +121,10 @@ function computeFollowSets(
   return { success: true, value: { firstSets, followSets: ret } };
 }
 
-type Item = Production & { dot: number; lookahead: string[] };
+const KEY_SEP = "\x00";
+const FIELD_SEP = "\x01";
+
+type Item = Production & { dot: number; lookahead: string[]; prodIndex: number; key: string };
 type State = { itemSet: Item[]; kernel: Item; count: number };
 
 export const generateStates = (productions: Production[]): Result<GeneratorResult> => {
@@ -161,15 +164,45 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
     }
   };
 
+  const productionIndicesByLhs = new Map<string, number[]>();
+  for (let i = 0; i < productions.length; i++) {
+    const indexList = productionIndicesByLhs.get(productions[i].identifier);
+    if (indexList == undefined) productionIndicesByLhs.set(productions[i].identifier, [i]);
+    else indexList.push(i);
+  }
+
+  const rhsEntrySignature = (rhsToken: Production["rhs"][number]) =>
+    `${rhsToken.type}${FIELD_SEP}${rhsToken.identifier}${FIELD_SEP}${rhsToken.name ?? ""}${FIELD_SEP}${rhsToken.token.line}${FIELD_SEP}${rhsToken.token.column}`;
+
+  const reduceValue: number[] = [];
+  {
+    const lowestIndexBySignature = new Map<string, number>();
+    for (let i = 0; i < productions.length; i++) {
+      const production = productions[i];
+      const signature = `${production.identifier}${FIELD_SEP}${production.rhs.map(rhsEntrySignature).join(FIELD_SEP)}`;
+      const lowest = lowestIndexBySignature.get(signature);
+      if (lowest == undefined) lowestIndexBySignature.set(signature, i);
+      reduceValue[i] = lowestIndexBySignature.get(signature)!;
+    }
+  }
+
+  const itemKey = (prodIndex: number, dot: number, lookahead: string[]) =>
+    `${prodIndex}${KEY_SEP}${dot}${KEY_SEP}${lookahead.join(FIELD_SEP)}`;
+
+  const itemSetSignature = (itemSet: Item[]) => itemSet.map((item) => item.key).join(FIELD_SEP);
+
   // This fnuction creates the initial item set based on the
   // production provided. It creating the initial item and expands it
-  function generateInitialItemSet(production: Production) {
+  function generateInitialItemSet(production: Production, prodIndex: number) {
+    const lookahead = [EOF_STRING];
     const initialItem = {
       lhs: production.lhs,
       identifier: production.identifier,
       rhs: production.rhs,
       dot: 0,
-      lookahead: [EOF_STRING],
+      lookahead,
+      prodIndex,
+      key: itemKey(prodIndex, 0, lookahead),
     } as Item;
 
     return expandItemSet([initialItem]);
@@ -178,20 +211,19 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
   // This function expands the item sets provided to it
   function expandItemSet(items: Item[]): Result<{ itemSet: Item[]; kernel: Item }> {
     const itemSet: Item[] = [...items];
+    const knownItems = new Set(items.map((item) => item.key));
 
-    // Create a queue of unprocessed items and keep shifting until there are no more items left
+    // Create a queue of unprocessed items and keep going until there are no more items left
     const unprocesssedItems: Item[] = [...items];
-    while (unprocesssedItems.length > 0) {
-      const currentItem = unprocesssedItems.shift()!;
+    let queuePosition = 0;
+    while (queuePosition < unprocesssedItems.length) {
+      const currentItem = unprocesssedItems[queuePosition++];
 
       // Check if the symbol after the dot is a non terminal
       const after = currentItem.rhs[currentItem.dot];
       if (after == null) continue; // TODO: check if this should be here
 
       if (after.type === "variable") {
-        // Find prodctions whose left hand side is the symbol after the dot
-        const newProductions = productions.filter((p) => p.identifier === after.identifier);
-
         // Compute the lookahead for the new productions to be added to the item set
         const rest = currentItem.rhs.slice(currentItem.dot + 1);
 
@@ -199,19 +231,22 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
         if (lookaheadResult.success === false) return lookaheadResult;
         const lookahead = lookaheadResult.value;
 
-        for (const newProduction of newProductions) {
-          // Create the new item and check if it already exists in the item set
-          // If it doesn't exist, add it to the item set and the queue of unprocessed items
-          const newItem = {
-            lhs: newProduction.lhs,
-            identifier: newProduction.identifier,
-            rhs: newProduction.rhs,
-            dot: 0,
-            lookahead,
-          } as Item;
-          const encoding = JSON.stringify(newItem);
+        const productionIndices = productionIndicesByLhs.get(after.identifier) ?? [];
+        for (const prodIndex of productionIndices) {
+          const newProduction = productions[prodIndex];
+          const key = itemKey(prodIndex, 0, lookahead);
 
-          if (itemSet.some((i) => JSON.stringify(i) === encoding) == false) {
+          if (knownItems.has(key) == false) {
+            knownItems.add(key);
+            const newItem = {
+              lhs: newProduction.lhs,
+              identifier: newProduction.identifier,
+              rhs: newProduction.rhs,
+              dot: 0,
+              lookahead,
+              prodIndex,
+              key,
+            } as Item;
             unprocesssedItems.push(newItem);
             itemSet.push(newItem);
           }
@@ -223,7 +258,7 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
     return { success: true, value: { itemSet, kernel: items[0] } };
   }
 
-  const initialItemSetResult = generateInitialItemSet(productions[0]);
+  const initialItemSetResult = generateInitialItemSet(productions[0], 0);
   if (initialItemSetResult.success === false) return initialItemSetResult;
   const initialItemSet = initialItemSetResult.value;
 
@@ -242,9 +277,14 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
     // array of maps whose keys is a terminal is a value of either to shift or reduce
     const ActionTable = [] as Map<string, { action: "shift" | "reduce"; value: number }>[];
 
+    // map from an item set signature to the index of the state holding it
+    const stateIndexBySignature = new Map<string, number>();
+    stateIndexBySignature.set(itemSetSignature(initialState.itemSet), 0);
+
     // While there is an unprocessed state, visit it
-    while (unprocessedStates.length > 0) {
-      const currentState = unprocessedStates.shift()!;
+    let statePosition = 0;
+    while (statePosition < unprocessedStates.length) {
+      const currentState = unprocessedStates[statePosition++];
       const nextStates_Goto = new Map<string, Item[]>();
       const nextStates_Shift = new Map<string, Item[]>();
 
@@ -256,25 +296,17 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
 
         // no next symbol is available, therefore we need to create a reduction
         if (nextSymbol == null) {
-          // Find the prodction that this item reduces to using the symbols on its right hand side
-          // TODO: check if the find can fail, honestly this might be invariant
-          const productionToReduceTo = productions
-            .map((p, i) => [p, i] as const)
-            .find(
-              ([p, _]) => JSON.stringify(p.rhs) === JSON.stringify(item.rhs) && p.identifier === item.identifier,
-            )![1];
-
           // for each lookahead in the item, create a new entry in the action table to reduce to the production found
           for (const lookahead of item.lookahead) {
             if (ActionTable[currentState.count] === undefined) ActionTable[currentState.count] = new Map();
-            ActionTable[currentState.count]!.set(lookahead, { action: "reduce", value: productionToReduceTo });
+            ActionTable[currentState.count]!.set(lookahead, { action: "reduce", value: reduceValue[item.prodIndex] });
           }
 
           continue calculateNextItem;
         }
 
         // Create the next item by shifting the dot by 1 place
-        const newItem: Item = { ...item, dot: item.dot + 1 };
+        const newItem: Item = { ...item, dot: item.dot + 1, key: itemKey(item.prodIndex, item.dot + 1, item.lookahead) };
 
         // Determine if we're going to create a GOTO or SHIFT based on the type of the symbol after the dot
         if (nextSymbol.type === "variable") {
@@ -300,19 +332,11 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
         const expandedItems = expandedItemsResult.value;
 
         // check if a state exist with the same item sets
-        let existingState = states.find((s) => {
-          return (
-            s.kernel.lhs === expandedItems.kernel.lhs &&
-            s.kernel.rhs.length === expandedItems.kernel.rhs.length &&
-            JSON.stringify(s.kernel.rhs) === JSON.stringify(expandedItems.kernel.rhs) &&
-            s.kernel.lookahead.length === expandedItems.kernel.lookahead.length &&
-            JSON.stringify(s.kernel.lookahead) === JSON.stringify(expandedItems.kernel.lookahead) &&
-            JSON.stringify(s.itemSet) === JSON.stringify(expandedItems.itemSet)
-          );
-        });
+        const signature = itemSetSignature(expandedItems.itemSet);
+        let existingStateIndex = stateIndexBySignature.get(signature);
 
         if (GotoTable[currentState.count] === undefined) GotoTable[currentState.count] = new Map();
-        if (existingState == undefined) {
+        if (existingStateIndex == undefined) {
           const newState: State = {
             itemSet: expandedItems.itemSet,
             kernel: expandedItems.kernel,
@@ -320,10 +344,11 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
           };
           states.push(newState);
           unprocessedStates.push(newState);
-          existingState = newState;
+          stateIndexBySignature.set(signature, newState.count);
+          existingStateIndex = newState.count;
         }
 
-        GotoTable[currentState.count]!.set(gotoTransition, existingState.count);
+        GotoTable[currentState.count]!.set(gotoTransition, existingStateIndex);
       }
 
       // For each SHIFT transition from the current state, expand  the item set that it points to
@@ -336,22 +361,14 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
         const expandedItems = expandedItemsResult.value;
 
         // check if a state exist with the same item sets
-        let existingState = states.find((s) => {
-          return (
-            s.kernel.lhs === expandedItems.kernel.lhs &&
-            s.kernel.rhs.length === expandedItems.kernel.rhs.length &&
-            JSON.stringify(s.kernel.rhs) === JSON.stringify(expandedItems.kernel.rhs) &&
-            s.kernel.lookahead.length === expandedItems.kernel.lookahead.length &&
-            JSON.stringify(s.kernel.lookahead) === JSON.stringify(expandedItems.kernel.lookahead) &&
-            JSON.stringify(s.itemSet) === JSON.stringify(expandedItems.itemSet)
-          );
-        });
+        const signature = itemSetSignature(expandedItems.itemSet);
+        let existingStateIndex = stateIndexBySignature.get(signature);
 
         // If there is no entry in the ActionTable for the current state, create one
         if (ActionTable[currentState.count] === undefined) ActionTable[currentState.count] = new Map();
 
         // If no such state exists, create a new state and add it to the list of states
-        if (existingState == undefined) {
+        if (existingStateIndex == undefined) {
           const newState: State = {
             itemSet: expandedItems.itemSet,
             kernel: expandedItems.kernel,
@@ -359,10 +376,11 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
           };
           states.push(newState);
           unprocessedStates.push(newState);
-          existingState = newState;
+          stateIndexBySignature.set(signature, newState.count);
+          existingStateIndex = newState.count;
         }
 
-        ActionTable[currentState.count]!.set(shiftTransition, { action: "shift", value: existingState.count });
+        ActionTable[currentState.count]!.set(shiftTransition, { action: "shift", value: existingStateIndex });
       }
     }
 
