@@ -51,8 +51,9 @@ export class Sparse<TokenType, Metadata, Node> {
   public static tryFromProductions<TokenType, Metadata, Node>(options: {
     productions: Production[];
     toStringifiedTokenType: (tokenType: TokenType) => string;
+    mode?: "lr1" | "lalr1";
   }): Result<Sparse<TokenType, Metadata, Node>> {
-    const statesResult = generateStates(options.productions);
+    const statesResult = generateStates(options.productions, { mode: options.mode });
     if (statesResult.success === false) return statesResult;
     const states = statesResult.value;
 
@@ -68,6 +69,7 @@ export class Sparse<TokenType, Metadata, Node> {
   public static fromProductions<TokenType, Metadata, Node>(options: {
     productions: Production[];
     toStringifiedTokenType: (tokenType: TokenType) => string;
+    mode?: "lr1" | "lalr1";
   }) {
     const result = Sparse.tryFromProductions<TokenType, Metadata, Node>(options);
     if (result.success === false)
