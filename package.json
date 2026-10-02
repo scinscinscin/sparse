@@ -1,6 +1,6 @@
 {
   "name": "@scinorandex/sparse",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "Yet another parser generator",
   "main": "dist/index.js",
   "scripts": {
