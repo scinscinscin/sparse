@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import { buildProductions, LR1StackSymbol, Sparse } from "../../src/index";
+import { buildProductions, buildStates, LR1StackSymbol, Sparse } from "../../src/index";
 import { ColumnAndRow, Slex, Token } from "@scinorandex/slex";
 
 // prettier-ignore
@@ -165,13 +165,14 @@ class Node {
   }
 }
 
-async function main() {
+async function parse(tablePath: string) {
   const exampleSourceCode = await fs.readFile("./example/LoLang/Features_Array_Methods.lol", "utf8");
   const lexer = lexerGenerator.generate(exampleSourceCode, () => ({}));
 
   const toStringifiedTokenType = (type: LoLangTokenType) => LoLangTokenType[type];
   const productions = buildProductions(await fs.readFile("./example/LoLang/grammar.txt", "utf8"));
-  const parserGenerator = Sparse.fromProductions<LoLangTokenType, {}, Node>({ productions, toStringifiedTokenType });
+  const states = buildStates(await fs.readFile(tablePath, "utf8"));
+  const parserGenerator = new Sparse<LoLangTokenType, {}, Node>({ productions, toStringifiedTokenType, states });
 
   const parser = parserGenerator.generate(lexer, {
     reducer: (_, { input }) => new Node(input),
@@ -215,7 +216,29 @@ async function main() {
     },
   });
 
-  console.log(parser.parse());
+  const parsingResult = parser.parse();
+  return JSON.stringify(parsingResult.result?.toObject());
+}
+
+async function main() {
+  let nsTime = Date.now();
+  const lr1Result = await parse("./example/LoLang/table.txt");
+  const lr1Time = Date.now() - nsTime;
+
+  nsTime = Date.now();
+  const lalrResult = await parse("./example/LoLang/tablelalr.txt");
+  const lalrTime = Date.now() - nsTime;
+
+  console.log(`LR(1) time: ${lr1Time}ms`);
+  console.log(`LALR(1) time: ${lalrTime}ms`);
+  const delta = Math.abs(lalrTime - lr1Time);
+  console.log("LR(1) is " + (lr1Time < lalrTime ? "faster" : "slower") + " than LALR(1)" + ` (${delta}ms)`);
+
+  console.log("==============================");
+  console.log(`LR(1) result: ${lr1Result}`);
+  console.log(`LALR(1) result: ${lalrResult}`);
+  console.log("==============================");
+  console.log(lr1Result === lalrResult ? "Equal output" : "Not equal output");
 }
 
 main();

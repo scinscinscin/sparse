@@ -18,7 +18,7 @@ function checkFileExists(filepath: string) {
 
 async function main() {
   if (typeof args.input !== "string" || typeof args.output !== "string") {
-    console.log("Usage: npx @scinorandex/sparse --input=<input> --output=<output>");
+    console.log("Usage: npx @scinorandex/sparse --input=<input> --output=<output> [--lalr]");
     return;
   }
 
@@ -36,7 +36,7 @@ async function main() {
     return;
   }
 
-  const generatorResult = generateStates(productionsResult.value);
+  const generatorResult = generateStates(productionsResult.value, { mode: args.lalr === true ? "lalr1" : "lr1" });
   if (generatorResult.success === false) {
     console.log(generatorResult.reason);
     console.log(buildErrorWindow(grammar, generatorResult.token));

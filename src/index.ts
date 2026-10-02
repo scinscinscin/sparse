@@ -1,4 +1,5 @@
 export { GeneratorResult, generateStates } from "./generator";
+export type { GeneratorOptions } from "./generator";
 export { buildProductions, tryBuildProductions } from "./meta/selfhosted";
 export { Result } from "./utils/Result";
 export {

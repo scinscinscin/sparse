@@ -127,7 +127,8 @@ const FIELD_SEP = "\x01";
 type Item = Production & { dot: number; lookahead: string[]; prodIndex: number; key: string };
 type State = { itemSet: Item[]; kernel: Item; count: number };
 
-export const generateStates = (productions: Production[]): Result<GeneratorResult> => {
+export type GeneratorOptions = { mode?: "lr1" | "lalr1" };
+export const generateStates = (productions: Production[], options: GeneratorOptions = {}): Result<GeneratorResult> => {
   const followSetsResult = computeFollowSets(productions);
   if (followSetsResult.success == false) return followSetsResult;
 
@@ -306,7 +307,11 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
         }
 
         // Create the next item by shifting the dot by 1 place
-        const newItem: Item = { ...item, dot: item.dot + 1, key: itemKey(item.prodIndex, item.dot + 1, item.lookahead) };
+        const newItem: Item = {
+          ...item,
+          dot: item.dot + 1,
+          key: itemKey(item.prodIndex, item.dot + 1, item.lookahead),
+        };
 
         // Determine if we're going to create a GOTO or SHIFT based on the type of the symbol after the dot
         if (nextSymbol.type === "variable") {
@@ -391,8 +396,114 @@ export const generateStates = (productions: Production[]): Result<GeneratorResul
   const StatesResult = generateStates(initialItemSet);
   if (StatesResult.success === false) return StatesResult;
   const { states, ActionTable, GotoTable } = StatesResult.value;
+
+  if (options.mode === "lalr1") {
+    const merged = mergeStatesForLALR(states, ActionTable, GotoTable);
+    if (merged.success === false) return merged;
+    return {
+      success: true,
+      value: new GeneratorResult(merged.value.states, merged.value.ActionTable, merged.value.GotoTable),
+    };
+  }
+
   return { success: true, value: new GeneratorResult(states, ActionTable, GotoTable) };
 };
+
+// Merges the LR(1) states into LALR(1) states by grouping states that have the same
+// "same-core" item set (items compared without their lookahead sets) and unioning
+// their item sets, action tables and goto tables. Returns an error if merging any
+// group produces a shift/reduce, reduce/reduce, shift or goto conflict, which
+// means the grammar is not LALR(1).
+function mergeStatesForLALR(
+  states: State[],
+  ActionTable: Map<string, { action: "shift" | "reduce"; value: number }>[],
+  GotoTable: Map<string, number>[],
+): Result<{
+  states: State[];
+  ActionTable: Map<string, { action: "shift" | "reduce"; value: number }>[];
+  GotoTable: Map<string, number>[];
+}> {
+  type Action = { action: "shift" | "reduce"; value: number };
+
+  const itemSkeleton = (item: Item) => `${item.prodIndex}${KEY_SEP}${item.dot}`;
+  const stateSkeleton = (state: State) => state.itemSet.map(itemSkeleton).sort().join(FIELD_SEP);
+
+  // Group states by same-core signature, assigning merged indices in first-occurrence order
+  const groupIndices: number[][] = [];
+  const groupBySkeleton = new Map<string, number>();
+  const oldToNew = new Array<number>(states.length);
+  for (let i = 0; i < states.length; i++) {
+    const skeleton = stateSkeleton(states[i]);
+    let group = groupBySkeleton.get(skeleton);
+    if (group == undefined) {
+      group = groupIndices.length;
+      groupBySkeleton.set(skeleton, group);
+      groupIndices.push([]);
+    }
+    groupIndices[group].push(i);
+    oldToNew[i] = group;
+  }
+
+  const describeAction = (a: Action) =>
+    a.action === "reduce" ? `reduce by production ${a.value}` : `shift to state ${a.value}`;
+  const conflictToken = (members: number[]) => states[members[0]].kernel.lhs;
+  const conflict = (g: number, members: number[], reason: string): Result<never> => ({
+    success: false,
+    reason: `LALR(1) conflict in state ${g} on ${reason} between LR(1) states ${members.join(", ")}: the grammar is not LALR(1)`,
+    token: conflictToken(members),
+  });
+
+  const newStates: State[] = [];
+  const newActionTable: Map<string, Action>[] = [];
+  const newGotoTable: Map<string, number>[] = [];
+
+  for (let g = 0; g < groupIndices.length; g++) {
+    const members = groupIndices[g];
+    const actions = new Map<string, Action>();
+    const gotos = new Map<string, number>();
+
+    for (const member of members) {
+      for (const [key, entry] of ActionTable[member].entries()) {
+        const value: Action = {
+          action: entry.action,
+          value: entry.action === "shift" ? oldToNew[entry.value] : entry.value,
+        };
+        const existing = actions.get(key);
+        if (existing == undefined) actions.set(key, value);
+        else if (existing.action !== value.action || existing.value !== value.value)
+          return conflict(g, members, `"${key}": ${describeAction(existing)} conflicts with ${describeAction(value)}`);
+      }
+
+      if (GotoTable[member] !== undefined)
+        for (const [key, target] of GotoTable[member]!.entries()) {
+          const value = oldToNew[target];
+          const existing = gotos.get(key);
+          if (existing == undefined) gotos.set(key, value);
+          else if (existing !== value)
+            return conflict(g, members, `"${key}": goto to state ${existing} conflicts with goto to state ${value}`);
+        }
+    }
+
+    // Union the item sets of all members, merging the lookahead sets of
+    // items that differ only in their lookahead
+    const itemsBySkeleton = new Map<string, Item>();
+    for (const member of members)
+      for (const item of states[member].itemSet) {
+        const skeleton = itemSkeleton(item);
+        const existing = itemsBySkeleton.get(skeleton);
+        if (existing == undefined) itemsBySkeleton.set(skeleton, { ...item, lookahead: [...item.lookahead] });
+        else
+          for (const lookahead of item.lookahead)
+            if (!existing.lookahead.includes(lookahead)) existing.lookahead.push(lookahead);
+      }
+
+    newStates.push({ itemSet: [...itemsBySkeleton.values()], kernel: states[members[0]].kernel, count: g });
+    newActionTable.push(actions);
+    newGotoTable.push(gotos);
+  }
+
+  return { success: true, value: { states: newStates, ActionTable: newActionTable, GotoTable: newGotoTable } };
+}
 
 export class GeneratorResult {
   constructor(

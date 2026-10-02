@@ -107,9 +107,11 @@ console.log(parser.parse().result!.toObject());
 
 ## Exporting and Loading the Parsing Table
 
-It takes a while for Sparse to build states (around 30 seconds for a file containing 150 productions). This can be alleviated by generating the parsing table and loading the states directly instead. This method also allows you to edit the parsing table to resolve parsing conflicts.
+It takes a while for Sparse to build states (around 0.5 seconds seconds for a file containing 150 productions). This can be alleviated by generating the parsing table and loading the states directly instead. This method also allows you to edit the parsing table to resolve parsing conflicts.
 
 To create the the states, you can run `npx @scinorandex/sparse --input=<input> --output=<output>`.
+
+By default, LR(1) states are generated. You can generate LALR(1) states instead by passing the `--lalr` flag (or setting `mode: "lalr1"` in `Sparse.fromProductions`): the resulting table is never larger than the LR(1) one, but generation fails if the grammar is not LALR(1). Using LALR(1) yields a ~35% performance boost over LR(1) for the same grammar (tested on the LoLang example).
 
 Afterwards, you can create a parser with pre-built states like the following:
 
@@ -124,8 +126,8 @@ async function main() {
 }
 ```
 
----
+## AI Disclaimer
 
-## Roadmap
+This project was originally written without the use of AI tools, the core LR(1) table generator was written by hand as per the algorithms described in the Dragon Book. Every release prior to v0.1 contained no AI generated code.
 
-1. Potentially add LALR(1) support. Currently, the parser only supports outputting LR(1) tables. Tables can be significantly smaller if it made LALR(1) tables instead.
+OpenCode and Qwen 3.8 27B were to implement performance improvements on the original LR(1) table generator and to implement LALR(1) support.
