@@ -1,6 +1,6 @@
 import { Slex } from "@scinorandex/slex";
-import { buildProductions, buildStates, LR1StackSymbol, Sparse } from "../../src/index";
-import fs from "fs/promises";
+import { LR1StackSymbol, Sparse, enumToString } from "../../src/index";
+import path from "path";
 
 // prettier-ignore
 enum TokenType {
@@ -33,11 +33,16 @@ class Node {
   }
 }
 
+const root = path.join(__dirname, "..", "..");
+
 async function main() {
-  const toStringifiedTokenType = (type: TokenType) => TokenType[type];
-  const productions = buildProductions(await fs.readFile("./example/math/grammar.txt", "utf8"));
-  const states = buildStates(await fs.readFile("./example/math/table.txt", "utf8"));
-  const parserGenerator = new Sparse<TokenType, Metadata, Node>({ productions, states, toStringifiedTokenType });
+  // fromGrammarFile reads the grammar, reads the prebuilt table, and checks that the two match.
+  const parserGenerator = await Sparse.fromGrammarFile<TokenType, Metadata, Node>({
+    grammarPath: path.join(root, "example/math/grammar.txt"),
+    tablePath: path.join(root, "example/math/table.txt"),
+    toStringifiedTokenType: enumToString(TokenType),
+    onWarning: ({ reason, token }) => console.warn(`${token.line}:${token.column} ${reason}`),
+  });
 
   const parser = parserGenerator.generate(lexer, { reducer: (_, { input }) => new Node(input) });
   console.log(parser.parse().result!.toObject());

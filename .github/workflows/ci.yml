@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Typecheck
+        run: yarn tc
+
+      - name: Test
+        run: yarn test
+
+      - name: Build
+        run: yarn build
+
+      - name: Run the examples
+        run: |
+          npm install -g tsx
+          npx tsx example/math/example.ts
+          npx tsx example/kleene-test/example.ts
+          npx tsx example/LoLang/example.ts
+
+      - name: The committed tables are up to date
+        run: |
+          node dist/cli.js --input=example/math/grammar.txt --output=example/math/table.txt --check
+          node dist/cli.js --input=example/LoLang/grammar.txt --output=example/LoLang/table.txt --check

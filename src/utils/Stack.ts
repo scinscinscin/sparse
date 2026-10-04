@@ -17,7 +17,27 @@ export class Stack<T> {
     return ret;
   }
 
+  /** Reads `depth` items below the top of the stack. Depth 0 is the top. */
+  public peekAt(depth: number): T {
+    const ret = this.items[this.items.length - 1 - depth];
+    if (ret === undefined) throw new Error(`Stack does not have an item at depth ${depth}`);
+    return ret;
+  }
+
+  public get size() {
+    return this.items.length;
+  }
+
+  public get isEmpty() {
+    return this.items.length === 0;
+  }
+
+  /** A copy of the stack, bottom first. Useful for error reporting inside a recovery function. */
+  public toArray(): T[] {
+    return [...this.items];
+  }
+
   constructor(items: T[] = []) {
-    this.items = items;
+    this.items = [...items];
   }
 }

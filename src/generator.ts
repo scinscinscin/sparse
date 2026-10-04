@@ -1,5 +1,5 @@
 import { TableState } from "./parser";
-import { GrammarToken, Production } from "./meta/common";
+import { GrammarToken, Production, ProductionWarning, validateProductions } from "./meta/common";
 import { Result } from "./utils/Result";
 
 const xContainsAllOfY = <T>(xs: Set<T>, ys: Set<T>) => [...ys].every((x) => xs.has(x));
@@ -20,6 +20,13 @@ function computeFirstSets(allProductions: Production[]): Result<Map<string, Set<
       const toBeModified = ret.get(production.identifier)!;
 
       const firstRhsToken = production.rhs[0];
+      if (firstRhsToken == null)
+        return {
+          success: false,
+          reason: `Production "${production.identifier}" has an empty right hand side, which Sparse does not support`,
+          token: production.lhs,
+        };
+
       if (firstRhsToken.type === "variable") {
         const add = ret.get(firstRhsToken.identifier);
 
@@ -127,8 +134,20 @@ const FIELD_SEP = "\x01";
 type Item = Production & { dot: number; lookahead: string[]; prodIndex: number; key: string };
 type State = { itemSet: Item[]; kernel: Item; count: number };
 
-export type GeneratorOptions = { mode?: "lr1" | "lalr1" };
-export const generateStates = (productions: Production[], options: GeneratorOptions = {}): Result<GeneratorResult> => {
+export type GeneratorOptions = {
+  mode?: "lr1" | "lalr1";
+  onWarning?: (warning: ProductionWarning) => void;
+  /** Called every time a new state is discovered, useful to show progress on big grammars. */
+  onProgress?: (statesGenerated: number) => void;
+};
+
+export const generateStates = (
+  productions: Production[],
+  options: GeneratorOptions = {},
+): Result<GeneratorResult> => {
+  const validationResult = validateProductions(productions, { onWarning: options.onWarning });
+  if (validationResult.success === false) return validationResult;
+
   const followSetsResult = computeFollowSets(productions);
   if (followSetsResult.success == false) return followSetsResult;
 
@@ -353,6 +372,7 @@ export const generateStates = (productions: Production[], options: GeneratorOpti
           existingStateIndex = newState.count;
         }
 
+        options.onProgress?.(states.length);
         GotoTable[currentState.count]!.set(gotoTransition, existingStateIndex);
       }
 
@@ -385,6 +405,7 @@ export const generateStates = (productions: Production[], options: GeneratorOpti
           existingStateIndex = newState.count;
         }
 
+        options.onProgress?.(states.length);
         ActionTable[currentState.count]!.set(shiftTransition, { action: "shift", value: existingStateIndex });
       }
     }
@@ -463,7 +484,9 @@ function mergeStatesForLALR(
     const gotos = new Map<string, number>();
 
     for (const member of members) {
-      for (const [key, entry] of ActionTable[member].entries()) {
+      // A state whose items only move to other states (no shifts, no completed items) has no
+      // entry in the action table at all.
+      for (const [key, entry] of (ActionTable[member] ?? new Map()).entries()) {
         const value: Action = {
           action: entry.action,
           value: entry.action === "shift" ? oldToNew[entry.value] : entry.value,
@@ -513,7 +536,15 @@ export class GeneratorResult {
   ) {}
 
   toTable(): string {
-    return this.ActionTable.map((actions, idx) => {
+    const actionless = this.ActionTable.findIndex((actions) => actions === undefined || actions.size === 0);
+    if (actionless !== -1)
+      throw new Error(
+        `State ${actionless} of this grammar has no actions, so it cannot be written in the parsing table format. ` +
+          `Use Sparse.fromProductions to keep the states in memory instead.`,
+      );
+
+    // Array.from, not map: the action table is sparse and map would keep the holes.
+    return Array.from(this.ActionTable, (actions, idx) => {
       return [
         ...[...actions.entries()].map(([k, { action, value }]) => `${k}=${action === "reduce" ? "r" : "s"}${value}`),
         ...(this.GotoTable[idx] === undefined ? [] : [...this.GotoTable[idx].entries()].map(([k, v]) => `${k}=${v}`)),
@@ -522,14 +553,24 @@ export class GeneratorResult {
   }
 
   toStates(): TableState[] {
-    return this.ActionTable.map((actions, idx) => {
+    // Array.from, not map: a state without actions leaves a hole in the action table, and map would
+    // hand back an array that is missing that state and shifts every later state number.
+    return Array.from(this.ActionTable, (actions, idx) => {
       const tableState = new TableState();
 
-      for (const [k, { action, value }] of actions.entries())
+      // See toTable(): a state can legitimately have no actions, it just cannot be serialized.
+      if (actions === undefined) return tableState;
+
+      for (const [k, { action, value }] of actions.entries()) {
         tableState.actions.set(k, { type: action === "reduce" ? "reduce" : "shift", value });
+        tableState.rawActions.set(k, `${action === "reduce" ? "r" : "s"}${value}`);
+      }
 
       if (this.GotoTable[idx] !== undefined)
-        for (const [k, value] of this.GotoTable[idx].entries()) tableState.actions.set(k, { type: "goto", value });
+        for (const [k, value] of this.GotoTable[idx].entries()) {
+          tableState.actions.set(k, { type: "goto", value });
+          tableState.rawActions.set(k, `${value}`);
+        }
 
       return tableState;
     });

@@ -1,9 +1,9 @@
 import fs from "fs/promises";
-import { buildProductions, buildStates, LR1StackSymbol, Sparse } from "../../src/index";
+import { LR1StackSymbol, Sparse, buildProductions, buildStates } from "../../src/index";
 import { ColumnAndRow, Slex, Token } from "@scinorandex/slex";
 
 // prettier-ignore
-enum LoLangTokenType {
+export enum LoLangTokenType {
   EOF,
 
   IMPORT,
@@ -42,7 +42,7 @@ enum LoLangTokenType {
   SINGLE_LINE_COMMENT, MULTI_LINE_COMMENT
 }
 
-const lexerGenerator = new Slex<LoLangTokenType, {}>({
+export const lexerGenerator = new Slex<LoLangTokenType, {}>({
   EOF_TYPE: LoLangTokenType.EOF,
   isHigherPrecedence: ({ current, next }) => current === LoLangTokenType.IDENTIFIER,
   // Specifies that SINGLE_LINE_COMMENT and MULTI_LINE_COMMENT tokens should be ignored.
@@ -176,7 +176,7 @@ async function parse(tablePath: string) {
 
   const parser = parserGenerator.generate(lexer, {
     reducer: (_, { input }) => new Node(input),
-    recover({ lexer, statesStack, symbolsStack, isSafe, addError, crash, finish, states }) {
+    recover({ lexer, statesStack, symbolsStack, isSafe, addError, crash, finish, insertToken, states }) {
       let token = lexer.peekNextToken();
       const currentState = statesStack.peek();
 
@@ -189,25 +189,26 @@ async function parse(tablePath: string) {
       token = lexer.peekNextToken();
 
       // check for lacking semicolons
-      if (states[currentState].actions.has("[SEMICOLON]")) {
-        const action = states[currentState].getTerminalAction("SEMICOLON");
+      const semicolonAction = states[currentState].getTerminalAction("SEMICOLON");
+      if (semicolonAction != null) {
+        // A semicolon the author forgot. It gets the same position as the token we choked on.
         const newToken = new Token<LoLangTokenType, {}>(
           LoLangTokenType.SEMICOLON,
           ";",
-          new ColumnAndRow(token.column, token.line),
+          new ColumnAndRow(token.line, token.column),
           token.metadata,
         );
 
-        if (action) {
-          if (action.type === "reduce") return finish({ newToken });
+        // If the parser only wanted a semicolon to reduce, hand it back as the next token.
+        if (semicolonAction.type === "reduce") return finish({ newToken });
 
-          statesStack.push(action.value);
-          symbolsStack.push({ type: "token", token: newToken });
-          addError(
-            `Expected SEMICOLON but received ${LoLangTokenType[token.type]}. SEMICOLON was automatically inserted.`,
-          );
-        }
+        // Otherwise shift the synthesized semicolon onto the stacks and carry on from there.
+        const inserted = insertToken(newToken);
+        if (inserted != null) return crash(inserted.reason);
 
+        addError(
+          `Expected SEMICOLON but received ${LoLangTokenType[token.type]}. SEMICOLON was automatically inserted.`,
+        );
         if (isSafe()) return finish();
       }
 
