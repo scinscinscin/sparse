@@ -17,10 +17,7 @@ export class TableState {
    */
   public readonly rawActions: Map<string, string>;
 
-  constructor(
-    actions = new Map<string, TableAction>(),
-    rawActions = new Map<string, string>(),
-  ) {
+  constructor(actions = new Map<string, TableAction>(), rawActions = new Map<string, string>()) {
     this.actions = actions;
     this.rawActions = rawActions;
   }
@@ -94,19 +91,15 @@ export type FromProductionsOptions<TokenType> = {
   toStringifiedTokenType: (tokenType: TokenType) => string;
   mode?: "lr1" | "lalr1";
   /** Generating states can take a while for big grammars; set to true to silence the timing log. */
-  quiet?: boolean;
   onWarning?: (warning: ProductionWarning) => void;
   onProgress?: (statesGenerated: number) => void;
 };
 
 export class Sparse<TokenType, Metadata, Node> {
-  public constructor(
-    public readonly options: SparseOptions<TokenType>,
-  ) {
+  public constructor(public readonly options: SparseOptions<TokenType>) {
     if (options.validate === true) {
       const result = validateTable(options.productions, options.states, { source: options.source });
-      if (result.success === false)
-        throw new Error(`The parsing table does not match the grammar: ${result.reason}`);
+      if (result.success === false) throw new Error(`The parsing table does not match the grammar: ${result.reason}`);
     }
   }
 
@@ -128,12 +121,6 @@ export class Sparse<TokenType, Metadata, Node> {
       states: states.toStates(),
       toStringifiedTokenType: options.toStringifiedTokenType,
     });
-
-    if (options.quiet !== true) {
-      const elapsed = Date.now() - startedAt;
-      const label = options.mode === "lalr1" ? "LALR(1)" : "LR(1)";
-      console.error(`Sparse generated ${sparse.options.states.length} ${label} states in ${elapsed}ms`);
-    }
 
     return { success: true, value: sparse };
   }
@@ -282,8 +269,7 @@ export class LR1Parser<TokenType, Metadata, Node> {
           crash: (reason: string) => ({ success: false, reason }),
           finish: (options?: { newToken: Token<TokenType, Metadata> }) => ({ success: true, token: options?.newToken }),
           insertToken: (newToken: Token<TokenType, Metadata>) => this.insertToken(newToken),
-          isSafe: () =>
-            currentStates().actions.has(`[${toStringifiedTokenType(this.lexer.peekNextToken().type)}]`),
+          isSafe: () => currentStates().actions.has(`[${toStringifiedTokenType(this.lexer.peekNextToken().type)}]`),
         });
 
         if (recoveryResult.success === false) throw new LR1ParserGraveError(recoveryResult.reason, token);
@@ -394,9 +380,7 @@ export class LR1Parser<TokenType, Metadata, Node> {
     if (action == null)
       return {
         success: false,
-        reason: `Cannot insert ${this.options.toStringifiedTokenType(token.type)} here: state ${
-          this.statesStack.peek()
-        } does not accept it. Expected ${state?.getTerminalKeys().join(", ") ?? "nothing"}`,
+        reason: `Cannot insert ${this.options.toStringifiedTokenType(token.type)} here: state ${this.statesStack.peek()} does not accept it. Expected ${state?.getTerminalKeys().join(", ") ?? "nothing"}`,
       };
 
     if (action.type !== "shift")
@@ -416,11 +400,9 @@ export class LR1Parser<TokenType, Metadata, Node> {
     const expected = state.getTerminalKeys();
     const got = this.options.toStringifiedTokenType(token.type);
     const lexeme = token.lexeme === "" ? "" : ` ("${token.lexeme}")`;
-    return (
-      `Invalid syntax at ${token.line}:${token.column}: got ${got}${lexeme}, but expected ${
-        expected.length === 0 ? "the end of the input" : `one of [${expected.join("], [")}]`
-      }`
-    );
+    return `Invalid syntax at ${token.line}:${token.column}: got ${got}${lexeme}, but expected ${
+      expected.length === 0 ? "the end of the input" : `one of [${expected.join("], [")}]`
+    }`;
   }
 }
 

@@ -54,7 +54,7 @@ README.md is the user-facing doc (grammar syntax, reducer contract, recovery gui
 - `src/meta/selfhosted.ts` — grammar-file parser + production unrolling
 - `src/meta/common.ts` — `Production` type + `validateProductions`
 - `src/table/selfhosted.ts` — table-file parser (`tryBuildStates`), `src/table/validate.ts` — table validation
-- `src/cli.ts` — `--input/--output/--lalr/--check/--stdout/--quiet/--help`
+- `src/cli.ts` — `--input/--output/--lalr/--check/--stdout/--help`
 - `example/` — `math` (prebuilt table), `kleene-test` (`*`/`+`), `LoLang` (large grammar + recovery, exports
   its lexer for the tests), `selfhosted` (codegen)
 - `test/` — `grammar`, `table`, `parser`, `lalr`, `codegen`, `cli`

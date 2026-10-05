@@ -11,15 +11,21 @@ Sparse allows developers to easily create LR(1) parsers and LR(1) parsing tables
 
 ## Table of contents
 
+- [Sparse - Scin's Parsing Library](#sparse---scins-parsing-library)
+- [Table of contents](#table-of-contents)
 - [Getting started](#getting-started)
 - [Grammar syntax reference](#grammar-syntax-reference)
-- [Building a parser](#building-a-parser)
+  - [What Sparse checks for you](#what-sparse-checks-for-you)
 - [Reducers](#reducers)
 - [Repetition with `*` and `+`](#repetition-with--and-)
 - [Error recovery](#error-recovery)
 - [Generating and shipping the parsing table](#generating-and-shipping-the-parsing-table)
 - [API reference](#api-reference)
+  - [Reading and writing grammars](#reading-and-writing-grammars)
+  - [Building parsers](#building-parsers)
+  - [Helpers](#helpers)
 - [Known limitations](#known-limitations)
+- [AI Disclaimer](#ai-disclaimer)
 
 ## Getting started
 
@@ -139,16 +145,16 @@ async function main() {
 
 A grammar file is a list of productions. Whitespace is insignificant, `//` starts a line comment, and `/* ... */` spans lines.
 
-| Syntax | Meaning |
-| --- | --- |
-| `<A>: <B> [C];` | `A` is made of one `B` followed by one `C` |
-| `<A: name>: ...;` | The production is *named*: its reducer is looked up under `name` |
-| `[TOK: name]` | Names the terminal on the right hand side so it shows up on the reducer's `bag` |
-| `<VAR: name>` | Same, for a variable |
-| `[A | B]` | Alternatives: unrolled into one production per alternative |
-| `<A | B>` | Same, for variables |
-| `([A] [B])?` | Optional group, unrolled into one production with and one without it |
-| `// comment`, `/* comment */` | Comments |
+| Syntax                        | Meaning                                                                         |
+| ----------------------------- | ------------------------------------------------------------------------------- |
+| `<A>: <B> [C];`               | `A` is made of one `B` followed by one `C`                                      |
+| `<A: name>: ...;`             | The production is *named*: its reducer is looked up under `name`                |
+| `[TOK: name]`                 | Names the terminal on the right hand side so it shows up on the reducer's `bag` |
+| `<VAR: name>`                 | Same, for a variable                                                            |
+| `[A                           | B]`                                                                             | Alternatives: unrolled into one production per alternative |
+| `<A                           | B>`                                                                             | Same, for variables                                        |
+| `([A] [B])?`                  | Optional group, unrolled into one production with and one without it            |
+| `// comment`, `/* comment */` | Comments                                                                        |
 
 Identifiers may contain letters, digits, `_` and `-`, and must start with a letter or `_`.
 
@@ -258,13 +264,13 @@ try {
 Pass a `recover` function to decide what happens instead. It receives the lexer, both stacks, the table,
 and these helpers:
 
-| Helper | What it does |
-| --- | --- |
-| `addError(reason)` | Records an error, keeps parsing, and returns it in `parse().errors` |
-| `crash(reason)` | Stops parsing and throws a `LR1ParserGraveError` |
-| `finish(options?)` | Stops recovery and carries on parsing from the current state |
-| `insertToken(token)` | Shifts a token the input did not have, e.g. a synthesized `;` |
-| `isSafe()` | True when the current state can consume the next real token |
+| Helper               | What it does                                                        |
+| -------------------- | ------------------------------------------------------------------- |
+| `addError(reason)`   | Records an error, keeps parsing, and returns it in `parse().errors` |
+| `crash(reason)`      | Stops parsing and throws a `LR1ParserGraveError`                    |
+| `finish(options?)`   | Stops recovery and carries on parsing from the current state        |
+| `insertToken(token)` | Shifts a token the input did not have, e.g. a synthesized `;`       |
+| `isSafe()`           | True when the current state can consume the next real token         |
 
 ```ts
 const parser = parserGenerator.generate(lexer, {
@@ -306,15 +312,15 @@ generate the table once at build time and commit it:
 npx sparse --input=grammar.txt --output=table.txt
 ```
 
-| Flag | Meaning |
-| --- | --- |
-| `--input=<file>` | Grammar to read (required) |
-| `--output=<file>` | Table to write; missing directories are created |
-| `--lalr` | Generate LALR(1) states instead of LR(1) |
-| `--check` | Write nothing; verify that `<output>` already matches the grammar |
-| `--stdout` | Print the table instead of writing it |
-| `--quiet` | Hide warnings about suspicious rules |
-| `--help` | Usage |
+| Flag              | Meaning                                                           |
+| ----------------- | ----------------------------------------------------------------- |
+| `--input=<file>`  | Grammar to read (required)                                        |
+| `--output=<file>` | Table to write; missing directories are created                   |
+| `--lalr`          | Generate LALR(1) states instead of LR(1)                          |
+| `--check`         | Write nothing; verify that `<output>` already matches the grammar |
+| `--stdout`        | Print the table instead of writing it                             |
+| `--quiet`         | Hide warnings about suspicious rules                              |
+| `--help`          | Usage                                                             |
 
 By default, LR(1) states are generated. You can generate LALR(1) states instead by passing the `--lalr`
 flag (or setting `mode: "lalr1"` in `Sparse.fromProductions`): the resulting table is never larger than
@@ -333,42 +339,42 @@ Then load the table with `Sparse.fromGrammarFile`, as shown in [Getting started]
 
 ### Reading and writing grammars
 
-| Function | Returns |
-| --- | --- |
+| Function                                                   | Returns                                                                                |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `buildProductions(source)` / `tryBuildProductions(source)` | The unrolled productions. Throws / returns a `Result` failure with the offending token |
-| `loadGrammar(path)` | Same, but reads the file, turning missing files into failures too |
-| `buildStates(table)` / `tryBuildStates(table)` | `TableState[]` from a table file, validating action syntax and state numbers |
-| `loadTable(path)` | Same, but reads the file |
-| `generateStates(productions, options?)` | `GeneratorResult`; `options` is `{ mode, onWarning, onProgress }` |
-| `validateProductions(productions, options?)` | Fails on a grammar that cannot generate a correct table |
-| `validateTable(productions, states)` | Fails when a table does not belong to the productions |
-| `validateTableStates(states, options?)` | Fails on a malformed table |
+| `loadGrammar(path)`                                        | Same, but reads the file, turning missing files into failures too                      |
+| `buildStates(table)` / `tryBuildStates(table)`             | `TableState[]` from a table file, validating action syntax and state numbers           |
+| `loadTable(path)`                                          | Same, but reads the file                                                               |
+| `generateStates(productions, options?)`                    | `GeneratorResult`; `options` is `{ mode, onWarning, onProgress }`                      |
+| `validateProductions(productions, options?)`               | Fails on a grammar that cannot generate a correct table                                |
+| `validateTable(productions, states)`                       | Fails when a table does not belong to the productions                                  |
+| `validateTableStates(states, options?)`                    | Fails on a malformed table                                                             |
 
 ### Building parsers
 
-| Function | Returns |
-| --- | --- |
+| Function                                                                                            | Returns                                                     |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | `Sparse.fromGrammarFile({ grammarPath, tablePath, toStringifiedTokenType, onWarning?, validate? })` | Loads a grammar and its prebuilt table, cross-checking them |
-| `Sparse.fromProductions({ productions, toStringifiedTokenType, mode?, quiet? })` | Generates states at startup |
-| `Sparse.tryFromProductions(...)` | Same, as a `Result` |
-| `new Sparse({ productions, states, toStringifiedTokenType, validate?, source? })` | Use when you already hold the states |
-| `generator.generate(lexer, { reducer, recover? })` | A parser |
-| `parser.parse()` | `{ result, errors }` |
-| `parser.reset()` | Clears the stacks and errors |
+| `Sparse.fromProductions({ productions, toStringifiedTokenType, mode?, quiet? })`                    | Generates states at startup                                 |
+| `Sparse.tryFromProductions(...)`                                                                    | Same, as a `Result`                                         |
+| `new Sparse({ productions, states, toStringifiedTokenType, validate?, source? })`                   | Use when you already hold the states                        |
+| `generator.generate(lexer, { reducer, recover? })`                                                  | A parser                                                    |
+| `parser.parse()`                                                                                    | `{ result, errors }`                                        |
+| `parser.reset()`                                                                                    | Clears the stacks and errors                                |
 
 ### Helpers
 
-| Export | Purpose |
-| --- | --- |
-| `enumToString(TokenType)` | The `toStringifiedTokenType` every example used to write by hand |
-| `defineReducers(reducers)` | Turns a map of named reducers into a reducer |
-| `assertReducersCoverGrammar(productions, reducers)` | Fails up front when a named production has no reducer |
-| `missingReducerNames(productions, reducers)` / `missingReducerMessage(...)` | Same, as data |
-| `namedProductions(productions)` | Every production the grammar names |
-| `TableState.fromJSObject(json)` / `GeneratorResult.toJSObject()` | Round trip a table through JSON |
-| `hydrateProduction(json)` / `dehydateProduction(production)` | Round trip productions through JSON |
-| `buildErrorWindow(source, token)` | Renders the window around a token |
-| `Stack` | `push`, `pop`, `peek`, `peekAt`, `size`, `isEmpty`, `toArray` |
+| Export                                                                      | Purpose                                                          |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `enumToString(TokenType)`                                                   | The `toStringifiedTokenType` every example used to write by hand |
+| `defineReducers(reducers)`                                                  | Turns a map of named reducers into a reducer                     |
+| `assertReducersCoverGrammar(productions, reducers)`                         | Fails up front when a named production has no reducer            |
+| `missingReducerNames(productions, reducers)` / `missingReducerMessage(...)` | Same, as data                                                    |
+| `namedProductions(productions)`                                             | Every production the grammar names                               |
+| `TableState.fromJSObject(json)` / `GeneratorResult.toJSObject()`            | Round trip a table through JSON                                  |
+| `hydrateProduction(json)` / `dehydateProduction(production)`                | Round trip productions through JSON                              |
+| `buildErrorWindow(source, token)`                                           | Renders the window around a token                                |
+| `Stack`                                                                     | `push`, `pop`, `peek`, `peekAt`, `size`, `isEmpty`, `toArray`    |
 
 ## Known limitations
 

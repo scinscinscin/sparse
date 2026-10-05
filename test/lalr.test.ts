@@ -1,13 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fs from "fs/promises";
-import {
-  LR1StackSymbol,
-  Sparse,
-  buildProductions,
-  buildStates,
-  enumToString,
-  generateStates,
-} from "../src/index";
+import { LR1StackSymbol, Sparse, buildProductions, buildStates, enumToString, generateStates } from "../src/index";
 import { MathTokenType, mathLexer, readFile } from "./helpers";
 import { lexerGenerator as loLangLexerGenerator, LoLangTokenType } from "../example/LoLang/example";
 
@@ -39,7 +32,6 @@ describe("LALR(1)", () => {
       productions,
       toStringifiedTokenType,
       mode: "lalr1",
-      quiet: true,
     });
 
     for (const expression of EXPRESSIONS) {
@@ -64,8 +56,12 @@ describe("LALR(1)", () => {
         toStringifiedTokenType: enumToString<LoLangTokenType>(LoLangTokenType),
         validate: true,
       })
-        .generate(loLangLexerGenerator.generate(source, () => ({})), { reducer })
-        .parse().result?.toObject();
+        .generate(
+          loLangLexerGenerator.generate(source, () => ({})),
+          { reducer },
+        )
+        .parse()
+        .result?.toObject();
 
     const fromLr1 = parse(lr1.value.toStates());
     const fromLalr = parse(lalr.value.toStates());
