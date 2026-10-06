@@ -1,5 +1,5 @@
 import { RegexEngine, Slex } from "@scinorandex/slex";
-import { Result, Sparse } from "../index";
+import { LR1ParserGraveError, Result, Sparse } from "../index";
 import { selfhosted } from "./states";
 import { TableState } from "../parser";
 import { GrammarToken, GrammarTokenMetadata, GrammarTokenType, hydrateProduction, Production } from "./common";
@@ -322,9 +322,15 @@ export const tryBuildProductions = (lexer: LexerInterface | string): Result<Prod
     },
   });
 
-  const parsingResult = parser.parse().result as ProgramNode;
-  const productions = parsingResult.getProductions();
-  return { success: true, value: productions };
+  const parsingResult = parser.tryParse();
+  if (parsingResult.status === "success") {
+    const root = parsingResult.result as ProgramNode;
+    const productions = root.getProductions();
+    return { success: true, value: productions };
+  } else {
+    const r = parsingResult as { threw: LR1ParserGraveError<GrammarTokenType, GrammarTokenMetadata> };
+    return { success: false, reason: r.threw.reason, token: r.threw.currentToken };
+  }
 };
 
 interface LexerInterface {

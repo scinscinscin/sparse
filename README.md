@@ -128,4 +128,4 @@ async function main() {
 
 This project was originally written without the use of AI tools, the core LR(1) table generator was written by hand as per the algorithms described in the Dragon Book. Every release prior to v0.1 contained no AI generated code.
 
-OpenCode and Qwen 3.8 27B were to implement performance improvements on the original LR(1) table generator and to implement LALR(1) support.
+OpenCode and Qwen 3.8 27B were to implement performance improvements on the original LR(1) table generator, implement LALR(1) support and partially implement grammar checking.

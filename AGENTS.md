@@ -1,6 +1,6 @@
 # AGENTS.md
 
-`@scinorandex/sparse` — LR(1) parser generator library (TypeScript, CJS via tsc, yarn 1).
+`@scinorandex/sparse` — LR(1) and LALR(1) parser generator library (TypeScript, CJS via tsc, yarn 1).
 Single package: `src/` = library + CLI, `example/` = runnable demos. README.md is the user-facing doc.
 
 ## Commands
@@ -8,7 +8,7 @@ Single package: `src/` = library + CLI, `example/` = runnable demos. README.md i
 - Build: `yarn build` → `dist/` (CLI is `dist/cli.js`)
 - Run examples: `tsx example/<name>/example.ts` — tsx is global, not a repo dep; `node file.ts` fails (enums)
 - Table CLI: `node dist/cli.js --input=<grammar> --output=<table>` (build first); output matches committed tables exactly
-- `yarn test` / `yarn bench` (vitest) exist but there are no test/bench files — `yarn test` fails with "No test files found". Verify via examples + `yarn tc` instead.
+- `yarn test` / `yarn bench` (vitest). `test/lr1-lalr-ast.test.ts` checks LR(1) vs LALR(1) AST equivalence on the LoLang example. Verify via examples + `yarn tc` + `yarn test`.
 - `dist/` and `yarn.lock` are gitignored.
 
 ## Self-hosting / codegen (critical, easy to break)

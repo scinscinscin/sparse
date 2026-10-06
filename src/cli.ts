@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 import fs from "fs/promises";
-import { tryBuildProductions } from "./index";
+import { tryBuildProductions, checkGrammar } from "./index";
 import { generateStates } from "./generator";
 import minimist from "minimist";
 import path from "path";
@@ -33,6 +33,15 @@ async function main() {
   if (productionsResult.success === false) {
     console.log(productionsResult.reason);
     console.log(buildErrorWindow(grammar, productionsResult.token));
+    return;
+  }
+
+  const grammarErrors = checkGrammar(productionsResult.value);
+  if (grammarErrors.length > 0) {
+    for (const e of grammarErrors) {
+      console.log(e.reason);
+      console.log(buildErrorWindow(grammar, e.token));
+    }
     return;
   }
 

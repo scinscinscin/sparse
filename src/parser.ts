@@ -108,6 +108,17 @@ export type ParserResult<TokenType, Metadata, Node> = {
   errors: ParserError<TokenType, Metadata>[];
 };
 
+export type TryParseResultStatus = "success" | "recovered" | "catastrophic";
+export type TryParseResult<TokenType, Metadata, Node> =
+  | { status: "success"; result: Node; errors: ParserError<TokenType, Metadata>[] }
+  | { status: "recovered"; result: Node | null; errors: ParserError<TokenType, Metadata>[] }
+  | {
+      status: "catastrophic";
+      result: null;
+      errors: ParserError<TokenType, Metadata>[];
+      threw: LR1ParserGraveError<TokenType, Metadata>;
+    };
+
 class LR1Parser<TokenType, Metadata, Node> {
   statesStack: Stack<number> = new Stack([0]);
   symbolsStack: Stack<LR1StackSymbol<TokenType, Metadata, Node>> = new Stack();
@@ -123,6 +134,17 @@ class LR1Parser<TokenType, Metadata, Node> {
     public readonly recover: ParserRecoveryFunction<TokenType, Metadata, Node> | null,
     public readonly lexer: ReturnType<Slex<TokenType, Metadata>["generate"]>,
   ) {}
+
+  public tryParse(): TryParseResult<TokenType, Metadata, Node> {
+    try {
+      const { errors, result } = this.parse();
+      if (errors.length === 0 && result !== null) return { status: "success", result, errors };
+      else return { status: "recovered", result, errors };
+    } catch (err) {
+      const graveError = err as LR1ParserGraveError<TokenType, Metadata>;
+      return { status: "catastrophic", result: null, errors: [], threw: graveError };
+    }
+  }
 
   public parse(): ParserResult<TokenType, Metadata, Node> {
     const { productions, states, toStringifiedTokenType } = this.options;
