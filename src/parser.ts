@@ -1,4 +1,4 @@
-import { Slex, Token } from "@scinorandex/slex";
+import { CommonEngine, Slex, Token } from "@scinorandex/slex";
 import { generateStates } from "./generator";
 import { Stack } from "./utils/Stack";
 import { Result } from "./utils/Result";
@@ -78,7 +78,7 @@ export class Sparse<TokenType, Metadata, Node> {
   }
 
   public generate(
-    lexer: ReturnType<Slex<TokenType, Metadata>["generate"]>,
+    lexer: CommonEngine<TokenType, Metadata>,
     options: {
       reducer: ReducerType<TokenType, Metadata, Node>;
       recover?: ParserRecoveryFunction<TokenType, Metadata, Node>;
@@ -89,7 +89,7 @@ export class Sparse<TokenType, Metadata, Node> {
 }
 
 export type ParserRecoveryFunction<TokenType, Metadata, Node> = (options: {
-  lexer: ReturnType<Slex<TokenType, Metadata>["generate"]>;
+  lexer: CommonEngine<TokenType, Metadata>;
   statesStack: Stack<number>;
   symbolsStack: Stack<LR1StackSymbol<TokenType, Metadata, Node>>;
   isSafe: () => boolean;
@@ -132,7 +132,7 @@ class LR1Parser<TokenType, Metadata, Node> {
     },
     public readonly reducer: ReducerType<TokenType, Metadata, Node>,
     public readonly recover: ParserRecoveryFunction<TokenType, Metadata, Node> | null,
-    public readonly lexer: ReturnType<Slex<TokenType, Metadata>["generate"]>,
+    public readonly lexer: CommonEngine<TokenType, Metadata>,
   ) {}
 
   public tryParse(): TryParseResult<TokenType, Metadata, Node> {

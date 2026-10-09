@@ -165,9 +165,11 @@ class Node {
   }
 }
 
+const compiledLexerGenerator = lexerGenerator.compile();
+
 async function parse(tablePath: string) {
   const exampleSourceCode = await fs.readFile("./example/LoLang/Features_Array_Methods.lol", "utf8");
-  const lexer = lexerGenerator.generate(exampleSourceCode, () => ({}));
+  const lexer = compiledLexerGenerator.generate(exampleSourceCode, () => ({}));
 
   const toStringifiedTokenType = (type: LoLangTokenType) => LoLangTokenType[type];
   const productions = buildProductions(await fs.readFile("./example/LoLang/grammar.txt", "utf8"));
